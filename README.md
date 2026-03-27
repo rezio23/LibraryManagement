@@ -1,179 +1,161 @@
 # Book Management Console App
 
-This project is a C# console application for managing a small library-style database in SQL Server. It lets a user manage:
+This project is a C# console application for managing a small library-style system with SQL Server. It lets a user maintain three related areas of data:
 
 - books
 - members
 - borrow history
 
-All application logic currently lives in [Program.cs](c:\Users\Rezio\Desktop\AUBSoftwareIntern\InternshipPractice3\book_Managment\book_Managment\Program.cs).
+The application is implemented as a single console program in `Program.cs`, with SQL Server used as the persistent data store.
 
-## What The Program Does
+## Overview
 
-When the app starts, it:
-
-1. connects to the `book_management` SQL Server database
-2. confirms the connection is open
-3. enters a console menu loop
-
-From the main dashboard, the user can open three areas:
+When the app starts, it immediately opens a SQL Server connection, checks the database, and then shows a main dashboard with these sections:
 
 - `1. Book's Data`
 - `2. Member's Data`
 - `3. Book's History`
+- `4. Exit`
 
-Each area supports basic CRUD operations:
+Each section supports view, add, update, and delete operations through console menus.
 
-- View
-- Add
-- Update
-- Delete
+## Features
 
-## Project Structure
+### Book management
 
-- [Program.cs](c:\Users\Rezio\Desktop\AUBSoftwareIntern\InternshipPractice3\book_Managment\book_Managment\Program.cs): all menu logic, validation, and database access
-- [book_Managment.csproj](c:\Users\Rezio\Desktop\AUBSoftwareIntern\InternshipPractice3\book_Managment\book_Managment\book_Managment.csproj): .NET project file
+- View all books in a formatted table
+- Add a new book
+- Prevent duplicate books with the same `Title` and `Author`
+- Update individual fields:
+  - title
+  - author
+  - publish year
+  - category
+  - total quantity
+- Delete a book only when it is not referenced by borrow history
 
-## Tech Stack
+### Member management
+
+- View all members in a formatted table
+- Add a new member
+- Update individual fields:
+  - name
+  - date of birth
+  - membership date
+- Enforce a minimum member age of 15
+- Prevent membership dates that are in the future
+- Require membership dates to be after the member's date of birth
+- Delete a member only when they are not referenced by borrow history
+
+### Borrow history management
+
+- View all borrow records in a formatted table
+- Add a new borrow record
+- Update individual fields:
+  - book ID
+  - member ID
+  - borrowed date
+  - returned date
+- Allow `Returned_Date` to stay empty for books that have not been returned yet
+- Display missing return dates as `Not Returned`
+- Validate referenced book IDs and member IDs before creating or updating history
+- Prevent a member from borrowing the same book again while an earlier record is still unreturned
+- Prevent borrowed dates from being in the future
+- Require returned dates to be after borrowed dates
+
+## Input and validation rules
+
+The program includes reusable console validation helpers and a cancellation flow:
+
+- `Escape` cancels the current operation and returns to the related menu
+- Book titles can be any non-empty text
+- Names and categories accept letters and spaces only
+- Numeric fields must be non-negative integers
+- Years must be 4 digits and cannot be in the future
+- Dates must use `yyyy-MM-dd`
+- Optional return dates can be left blank
+
+## Tech stack
 
 - .NET `10.0`
-- `Microsoft.Data.SqlClient` package version `7.0.0`
+- `Microsoft.Data.SqlClient` `7.0.0`
 - SQL Server with Windows authentication
+- Console UI with top-level statements and local functions
 
-## Database Connection
+## Project structure
 
-The application uses a hard-coded connection string in [Program.cs](c:\Users\Rezio\Desktop\AUBSoftwareIntern\InternshipPractice3\book_Managment\book_Managment\Program.cs):
+- `Program.cs`: all application logic, menu handling, validation, and SQL operations
+- `book_Managment.csproj`: project configuration and package references
+- `book_Managment.sln`: solution file
+
+## Database requirements
+
+The current code expects a SQL Server database named `book_management` and a local SQL Server Express instance matching this connection string in `Program.cs`:
 
 ```csharp
 Server=DESKTOP-RHMPA0K\SQLEXPRESS;Database=book_management;Trusted_Connection=True;TrustServerCertificate=True;
 ```
 
-Important note:
+If you run this project on another machine, you will almost certainly need to update that connection string first.
 
-- the app is currently tied to the local machine and SQL Server instance above
-- if someone else runs this project, they will likely need to update the connection string first
+### Expected tables
 
-## Expected Database Objects
-
-Based on the code, the program expects these tables:
+The program reads and writes these tables:
 
 - `books_manage`
 - `members_manage`
 - `borrow_history`
 
-It also expects these stored procedures to already exist:
+### Expected columns
+
+The code assumes these fields exist:
+
+- `books_manage`: `Id`, `Title`, `Author`, `Publish`, `Category`, `Total`
+- `members_manage`: `Id`, `Name`, `Dob`, `Member_Since`
+- `borrow_history`: `Id`, `BookID`, `MemberID`, `Borrowed_Date`, `Returned_Date`
+
+### Expected stored procedures
+
+The application uses stored procedures for viewing, inserting, and deleting records:
 
 - `sp_GetAllBooks`
 - `sp_InsertBook`
-- `sp_UpdateBook`
 - `sp_DeleteBook`
 - `sp_GetAllMembers`
 - `sp_InsertMember`
-- `sp_UpdateMember`
 - `sp_DeleteMember`
 - `sp_GetAllHistory`
 - `sp_InsertHistory`
-- `sp_UpdateHistory`
 - `sp_DeleteHistory`
 
-The code also assumes the tables use an `Id` column and related fields such as:
+Important note:
 
-- `Title`, `Author`, `Publish`, `Category`, `Total`
-- `Name`, `Dob`, `Member_Since`
-- `BookID`, `MemberID`, `Borrowed_Date`, `Returned_Date`
+- update operations are currently implemented with inline SQL `UPDATE` statements, not stored procedures
+- existence checks and duplicate checks also use inline SQL queries
 
-## Menu Behavior
+## How to run
 
-### Books
-
-The books menu can:
-
-- view all books
-- add a new book
-- update a book by `Id`
-- delete a book by `Id`
-
-Displayed fields:
-
-- `Id`
-- `Title`
-- `Author`
-- `Publish`
-- `Category`
-- `Total`
-
-### Members
-
-The members menu can:
-
-- view all members
-- add a new member
-- update a member by `Id`
-- delete a member by `Id`
-
-Displayed fields:
-
-- `Id`
-- `Name`
-- `Dob`
-- `Member_Since`
-
-### Borrow History
-
-The history menu can:
-
-- view all borrow records
-- add a borrow record
-- update a borrow record
-- delete a borrow record
-
-Displayed fields:
-
-- `Id`
-- `BookID`
-- `MemberID`
-- `Borrowed_Date`
-- `Returned_Date`
-
-If `Returned_Date` is null, the program shows `Not Returned`.
-
-## Validation And Safety Rules
-
-The code includes several helper methods for input validation:
-
-- `BookTitleFormat(...)`: allows any non-empty title
-- `NameFormat(...)`: allows only letters and spaces
-- `NumberFormat(...)`: allows only non-negative integers
-- `DateFormat(...)`: requires `yyyy-MM-dd`
-- `OptionalDateFormat(...)`: allows a blank returned date
-- `CancelInput(...)`: lets the user type `cancel` to stop an operation
-
-Important behavior:
-
-- books and members cannot be deleted if related rows still exist in `borrow_history`
-- history add/update checks that the referenced book and member IDs exist first
-- history update also checks that the selected history record exists
-
-## Important Notes About The Current Code
-
-- The whole program is written in one file with nested local functions. This works, but it makes the app harder to maintain as it grows.
-- The startup query reads table names from `INFORMATION_SCHEMA.TABLES`, but printing is commented out, so the list is not shown.
-- Book titles are validated separately from names, which is useful because titles can contain characters that `NameFormat(...)` would reject.
-- `NameFormat(...)` only accepts letters and spaces, which means values with numbers or symbols are rejected. That may be too strict for some real names or categories.
-- The program depends heavily on stored procedures and an existing SQL schema. It will not work correctly unless the database is already prepared.
-
-## How To Run
-
-1. Make sure SQL Server is available and the `book_management` database exists.
-2. Make sure the required tables and stored procedures are created.
-3. Update the connection string in [Program.cs](c:\Users\Rezio\Desktop\AUBSoftwareIntern\InternshipPractice3\book_Managment\book_Managment\Program.cs) if your SQL Server instance is different.
-4. Run the project:
+1. Install the .NET 10 SDK.
+2. Make sure SQL Server or SQL Server Express is installed and accessible.
+3. Create the `book_management` database.
+4. Create the required tables and stored procedures.
+5. Update the connection string in `Program.cs` if your SQL Server instance is different.
+6. Run the project:
 
 ```powershell
 dotnet build
 dotnet run
 ```
 
-## Current Status
+The application connects to the database at startup, so it will fail immediately if the SQL Server instance, database, tables, or procedures are missing.
 
-The project builds successfully in its current state.
+## Current implementation notes
+
+- The whole app is contained in one file using nested local functions.
+- The startup code queries `INFORMATION_SCHEMA.TABLES`, but the related console output is commented out.
+- The program mixes stored procedures and inline SQL rather than using one consistent data-access approach.
+- `NameFormat(...)` is strict, which means some real names or category values with punctuation, numbers, or symbols will be rejected.
+
+## Verification
+
+`dotnet build` succeeds in the current project workspace.
