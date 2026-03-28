@@ -26,6 +26,7 @@ Each section supports view, add, update, and delete operations through console m
 - View all books in a formatted table
 - Add a new book
 - Prevent duplicate books with the same `Title` and `Author`
+- Re-prompt for update and delete IDs until an existing book is selected or the operation is canceled
 - Update individual fields:
   - title
   - author
@@ -38,6 +39,7 @@ Each section supports view, add, update, and delete operations through console m
 
 - View all members in a formatted table
 - Add a new member
+- Re-prompt for update and delete IDs until an existing member is selected or the operation is canceled
 - Update individual fields:
   - name
   - date of birth
@@ -51,6 +53,7 @@ Each section supports view, add, update, and delete operations through console m
 
 - View all borrow records in a formatted table
 - Add a new borrow record
+- Re-prompt for update and delete IDs until an existing history record is selected or the operation is canceled
 - Update individual fields:
   - book ID
   - member ID
@@ -68,6 +71,7 @@ Each section supports view, add, update, and delete operations through console m
 The program includes reusable console validation helpers and a cancellation flow:
 
 - `Escape` cancels the current operation and returns to the related menu
+- Update-field selection prompts also use the same cancellable input flow
 - Book titles can be any non-empty text
 - Names and categories accept letters and spaces only
 - Numeric fields must be non-negative integers
@@ -154,6 +158,7 @@ The application connects to the database at startup, so it will fail immediately
 - The whole app is contained in one file using nested local functions.
 - The startup code queries `INFORMATION_SCHEMA.TABLES`, but the related console output is commented out.
 - The program mixes stored procedures and inline SQL rather than using one consistent data-access approach.
+- Update and delete flows now loop on invalid or missing IDs instead of ending the action immediately.
 - `NameFormat(...)` is strict, which means some real names or category values with punctuation, numbers, or symbols will be rejected.
 
 ## Verification

@@ -169,21 +169,25 @@ while (run)
 
                     SqlConnection? connection = null;
 
-                    int updateBookId = NumberFormat("Select ID to update: ");
+                    int updateBookId;
 
                     connection = new SqlConnection(connectionString);
                     connection.Open();
 
-                    if (!ExistedId(connection, "books_manage", updateBookId))
+                    while (true)
                     {
-                        Console.WriteLine("Book ID not found!");
-                        return;
-                    }
-
-                    if (updateBookId <= 0)
-                    {
-                        Console.WriteLine("Book's ID must be bigger than 0!");
-                        return;
+                        updateBookId = NumberFormat("Select ID to update: ");
+                        if (updateBookId <= 0)
+                        {
+                            Console.WriteLine("Book's ID must be bigger than 0!");
+                            continue;
+                        }
+                        if (!ExistedId(connection, "books_manage", updateBookId))
+                        {
+                            Console.WriteLine("Book ID not found! Please try again.");
+                            continue;
+                        }
+                        break;
                     }
 
 
@@ -192,9 +196,8 @@ while (run)
                     Console.WriteLine("3. Update Publish's Year");
                     Console.WriteLine("4. Update Book's Category");
                     Console.WriteLine("5. Update Book's Total");
-                    Console.Write("Select the number to update: ");
 
-                    switch (Console.ReadLine())
+                    switch (CancelInput("Select the number to update: "))
                     {
                         case "1": UpdateBookTitle(); break;
                         case "2": UpdateAuthorName(); break;
@@ -470,10 +473,20 @@ while (run)
                     SqlConnection? connection = null;
                     SqlCommand? command = null;
 
-                    int deleteId = NumberFormat("Select ID to delete: ");
-
                     connection = new SqlConnection(connectionString);
                     connection.Open();
+
+                    int deleteId;
+                    while (true)
+                    {
+                        deleteId = NumberFormat("Select ID to delete: ");
+                        if (!ExistedId(connection, "books_manage", deleteId))
+                        {
+                            Console.WriteLine("Book ID not found! Please try again.");
+                            continue;
+                        }
+                        break;
+                    }
 
                     string checkQuery = "SELECT COUNT(*) FROM borrow_history WHERE BookID = @Id"; // Check if the book is existed
                     using SqlCommand checkCommand = new SqlCommand(checkQuery, connection);
@@ -646,26 +659,28 @@ while (run)
                     connection = new SqlConnection(connectionString);
                     connection.Open();
 
-                    int updateMemberId = NumberFormat("Select ID to Update: ");
-
-                    if (!ExistedId(connection, "members_manage", updateMemberId))
+                    int updateMemberId;
+                    while (true)
                     {
-                        Console.WriteLine("Member ID not found!");
-                        return;
-                    }
-
-                    if (updateMemberId <= 0)
-                    {
-                        Console.WriteLine("Member's ID must be bigger than 0!");
-                        return;
+                        updateMemberId = NumberFormat("Select ID to Update: ");
+                        if (updateMemberId <= 0)
+                        {
+                            Console.WriteLine("Member's ID must be bigger than 0!");
+                            continue;
+                        }
+                        if (!ExistedId(connection, "members_manage", updateMemberId))
+                        {
+                            Console.WriteLine("Member ID not found! Please try again.");
+                            continue;
+                        }
+                        break;
                     }
 
                     Console.WriteLine("1. Update Member's Name");
                     Console.WriteLine("2. Update Member's DOB");
                     Console.WriteLine("3. Update Member's Membership Date");
-                    Console.Write("Select the number to update: ");
 
-                    switch (Console.ReadLine())
+                    switch (CancelInput("Select the number to update: "))
                     {
                         case "1": UpdateMemberName(); break;
                         case "2": UpdateMemberDOB(); break;
@@ -876,10 +891,20 @@ while (run)
                     SqlCommand? command = null;
                     SqlConnection? connection = null;
 
-                    int deleteMemberId = NumberFormat("Select ID to Delete: ");
-
                     connection = new SqlConnection(connectionString);
                     connection.Open();
+
+                    int deleteMemberId;
+                    while (true)
+                    {
+                        deleteMemberId = NumberFormat("Select ID to Delete: ");
+                        if (!ExistedId(connection, "members_manage", deleteMemberId))
+                        {
+                            Console.WriteLine("Member ID not found! Please try again.");
+                            continue;
+                        }
+                        break;
+                    }
 
                     string checkQuery = "SELECT COUNT(*) FROM borrow_history WHERE MemberID = @Id";
                     using SqlCommand checkCommand = new SqlCommand(checkQuery, connection);
@@ -915,6 +940,7 @@ while (run)
         // History's Data -------------------------------------------------------------------
         void History()
         {
+            Console.Clear();
             Console.WriteLine("1 View History");
             Console.WriteLine("2 Add History");
             Console.WriteLine("3 Update History");
@@ -1070,21 +1096,25 @@ while (run)
 
                     SqlConnection? connection = null;
 
-                    int updateHistoryId = NumberFormat("Select ID to Update: ");
+                    int updateHistoryId;
 
                     connection = new SqlConnection(connectionString);
                     connection.Open();
 
-                    if (!ExistedId(connection, "borrow_history", updateHistoryId))
+                    while (true)
                     {
-                        Console.WriteLine("History ID not found. Please try again.");
-                        return;
-                    }
-
-                    if (updateHistoryId <= 0)
-                    {
-                        Console.WriteLine("History ID must be bigger than 0!");
-                        return;
+                        updateHistoryId = NumberFormat("Select ID to Update: ");
+                        if (updateHistoryId <= 0)
+                        {
+                            Console.WriteLine("History ID must be bigger than 0!");
+                            continue;
+                        }
+                        if (!ExistedId(connection, "borrow_history", updateHistoryId))
+                        {
+                            Console.WriteLine("History ID not found! Please try again.");
+                            continue;
+                        }
+                        break;
                     }
 
                     Console.WriteLine("1. Update Book's ID");
@@ -1093,7 +1123,7 @@ while (run)
                     Console.WriteLine("4. Update Returned Date");
                     Console.Write("Select the number to update: ");
 
-                    switch (Console.ReadLine())
+                    switch (CancelInput("Select the number to update: "))
                     {
                         case "1": UpdateHistoryBookId(); break;
                         case "2": UpdateHistoryMemberId(); break;
@@ -1342,10 +1372,21 @@ while (run)
                     SqlConnection? connection = null;
                     SqlCommand? command = null;
 
-                    int deleteHistoryId = NumberFormat("Select ID to Delete: ");
-
                     connection = new SqlConnection(connectionString);
                     connection.Open();
+
+                    int deleteHistoryId;
+                    while (true)
+                    {
+                        deleteHistoryId = NumberFormat("Select ID to Delete: ");
+                        if (!ExistedId(connection, "borrow_history", deleteHistoryId))
+                        {
+                            Console.WriteLine("History ID not found! Please try again.");
+                            continue;
+                        }
+                        break;
+                    }
+
                     command = new SqlCommand("sp_DeleteHistory", connection);
                     command.CommandType = CommandType.StoredProcedure;
 
