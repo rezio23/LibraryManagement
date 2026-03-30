@@ -105,16 +105,28 @@ If you run the project on a different machine or SQL Server instance, update tho
 ### Expected stored procedures
 
 - `sp_GetAllBooks`
+- `sp_GetBookById`
 - `sp_InsertBook`
+- `sp_UpdateBook`
 - `sp_DeleteBook`
+- `sp_CheckBookExists`
+- `sp_CheckDuplicateBook`
+- `sp_CheckDuplicateBookExcludeId`
+- `sp_CheckBookUsedInHistory`
 - `sp_GetAllMembers`
+- `sp_GetMemberById`
 - `sp_InsertMember`
+- `sp_UpdateMember`
 - `sp_DeleteMember`
+- `sp_CheckMemberExists`
+- `sp_CheckMemberUsedInHistory`
 - `sp_GetAllHistory`
+- `sp_GetHistoryById`
 - `sp_InsertHistory`
+- `sp_UpdateHistory`
 - `sp_DeleteHistory`
-
-Update actions still use inline SQL `UPDATE` statements rather than stored procedures.
+- `sp_CheckHistoryExists`
+- `sp_CheckActiveBorrow`
 
 ## How to run
 
@@ -134,4 +146,4 @@ dotnet run
 
 - `Program.cs` is now a small entry point instead of containing the full application.
 - The codebase is split into separate files for login, admin flow, and user flow.
-- Build verification in this workspace is currently blocked by offline NuGet signature checks, even though the required package already exists locally.
+- Update and validation flows now depend on the stored procedures listed above instead of inline count/update queries.

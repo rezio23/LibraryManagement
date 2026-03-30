@@ -13,15 +13,13 @@ namespace book_Managment
 
         public static void Show()
         {
-            bool run = true;
-
-            while (run)
+            Console.Clear();
+            while (true)
             {
-                Console.Clear();
-                Console.WriteLine("1. Book's Data");
-                Console.WriteLine("2. Member's Data");
-                Console.WriteLine("3. Book's History");
-                Console.WriteLine("4. Logout");
+                Console.WriteLine("1. Book's Data" + '\n');
+                Console.WriteLine("2. Member's Data" + '\n');
+                Console.WriteLine("3. Book's History" + '\n');
+                Console.WriteLine("4. Logout" + '\n');
                 Console.Write("Enter the Main Dashboard's value: ");
 
                 switch (Console.ReadLine())
@@ -29,22 +27,31 @@ namespace book_Managment
                     case "1": BookMenu(); break;
                     case "2": MemberMenu(); break;
                     case "3": HistoryMenu(); break;
-                    case "4": run = false; break;
-                    default: Console.WriteLine("Invalid choice. Please try again.");
-                    Pause(); break;
+                    case "4": Logout(); return;
+                    default:
+                        Console.WriteLine("Invalid choice. Please try again." + '\n');
+                        break;
                 }
+
             }
+        }
+
+        private static void Logout()
+        {
+            Console.WriteLine("Logging out..." + '\n');
+            Pause();
+            Login.Show();
         }
 
         // -------------------- Book --------------------
         private static void BookMenu()
         {
+            Console.Clear();
             while (true)
             {
-                Console.Clear();
-                Console.WriteLine("1. View Books");
-                Console.WriteLine("2. Add Books");
-                Console.WriteLine("3. Back");
+                Console.WriteLine("1. View Books" + '\n');
+                Console.WriteLine("2. Add Books" + '\n');
+                Console.WriteLine("3. Back" + '\n');
                 Console.Write("Enter book's menu: ");
 
                 switch (Console.ReadLine())
@@ -52,8 +59,9 @@ namespace book_Managment
                     case "1": ViewBook(); Pause(); break;
                     case "2": AddBook(); break;
                     case "3": return;
-                    default: Console.WriteLine("Invalid choice. Please try again.");
-                    Pause(); break;
+                    default:
+                        Console.WriteLine("Invalid choice. Please try again." + '\n');
+                        break;
                 }
             }
         }
@@ -100,19 +108,10 @@ namespace book_Managment
                 using SqlConnection connection = new SqlConnection(connectionString);
                 connection.Open();
 
-                string duplicateQuery = "SELECT COUNT(*) FROM books_manage WHERE Title = @Title AND Author = @Author";
-                using (SqlCommand duplicatedCommand = new SqlCommand(duplicateQuery, connection))
+                if (DuplicateBookExists(bookTitle, authorName))
                 {
-                    duplicatedCommand.Parameters.AddWithValue("@Title", bookTitle);
-                    duplicatedCommand.Parameters.AddWithValue("@Author", authorName);
-
-                    int dupCount = (int)duplicatedCommand.ExecuteScalar();
-                    if (dupCount > 0)
-                    {
-                        Console.WriteLine("This book already exists. Please try again.");
-                        Pause();
-                        return;
-                    }
+                    Console.WriteLine("This book already exists. Please try again." + '\n');
+                    return;
                 }
 
                 using SqlCommand command = new SqlCommand("sp_InsertBook", connection);
@@ -122,16 +121,15 @@ namespace book_Managment
                 command.Parameters.AddWithValue("@Publish", publishYear);
                 command.Parameters.AddWithValue("@Category", bookCategory);
                 command.Parameters.AddWithValue("@Total", totalBooks);
-
                 command.ExecuteNonQuery();
-                Console.WriteLine("1 row inserted!");
 
+                Console.WriteLine("1 row inserted!" + '\n');
                 ViewBook();
                 Pause();
             }
             catch (OperationCanceledException)
             {
-                Console.WriteLine("Operation canceled. Returning to book menu.");
+                Console.WriteLine("Operation canceled. Returning to book menu." + '\n');
                 Pause();
             }
         }
@@ -139,12 +137,12 @@ namespace book_Managment
         // -------------------- Member --------------------
         private static void MemberMenu()
         {
+            Console.Clear();
             while (true)
             {
-                Console.Clear();
-                Console.WriteLine("1. View Members");
-                Console.WriteLine("2. Add Members");
-                Console.WriteLine("3. Back");
+                Console.WriteLine("1. View Members" + '\n');
+                Console.WriteLine("2. Add Members" + '\n');
+                Console.WriteLine("3. Back" + '\n');
                 Console.Write("Enter member's menu: ");
 
                 switch (Console.ReadLine())
@@ -152,8 +150,9 @@ namespace book_Managment
                     case "1": ViewMember(); Pause(); break;
                     case "2": AddMember(); break;
                     case "3": return;
-                    default: Console.WriteLine("Invalid choice. Please try again.");
-                    Pause(); break;
+                    default:
+                        Console.WriteLine("Invalid choice. Please try again." + '\n');
+                        break;
                 }
             }
         }
@@ -209,7 +208,7 @@ namespace book_Managment
 
                     if (age < 15)
                     {
-                        Console.WriteLine("Member's age should be at least 15 years old!");
+                        Console.WriteLine("Member's age should be at least 15 years old!" + '\n');
                         continue;
                     }
 
@@ -223,13 +222,13 @@ namespace book_Managment
 
                     if (memberShip.Date > DateTime.Today)
                     {
-                        Console.WriteLine("Membership year cannot be in the future!");
+                        Console.WriteLine("Membership year cannot be in the future!" + '\n');
                         continue;
                     }
 
                     if (memberShip.Date <= memberDOB.Date)
                     {
-                        Console.WriteLine("Membership date must be after DOB!");
+                        Console.WriteLine("Membership date must be after DOB!" + '\n');
                         continue;
                     }
 
@@ -246,14 +245,14 @@ namespace book_Managment
                 command.Parameters.AddWithValue("@Member_Since", memberShip);
 
                 command.ExecuteNonQuery();
-                Console.WriteLine("1 row inserted!");
+                Console.WriteLine("1 row inserted!" + '\n');
 
                 ViewMember();
                 Pause();
             }
             catch (OperationCanceledException)
             {
-                Console.WriteLine("Operation canceled. Returning to member menu.");
+                Console.WriteLine("Operation canceled. Returning to member menu." + '\n');
                 Pause();
             }
         }
@@ -264,9 +263,9 @@ namespace book_Managment
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine("1. View History");
-                Console.WriteLine("2. Add History");
-                Console.WriteLine("3. Back");
+                Console.WriteLine("1. View History" + '\n');
+                Console.WriteLine("2. Add History" + '\n');
+                Console.WriteLine("3. Back" + '\n');
                 Console.Write("Enter history's menu: ");
 
                 switch (Console.ReadLine())
@@ -274,8 +273,9 @@ namespace book_Managment
                     case "1": ViewHistory(); Pause(); break;
                     case "2": AddHistory(); break;
                     case "3": return;
-                    default: Console.WriteLine("Invalid choice. Please try again.");
-                    Pause(); break;
+                    default:
+                        Console.WriteLine("Invalid choice. Please try again." + '\n');
+                        break;
                 }
             }
         }
@@ -306,13 +306,11 @@ namespace book_Managment
             }
 
             Console.WriteLine(new string('-', 62));
-            Console.WriteLine();
         }
 
         private static void AddHistory()
         {
             Console.Clear();
-
             try
             {
                 ViewHistory();
@@ -328,7 +326,7 @@ namespace book_Managment
                     if (ExistedId(connection, "books_manage", bookId))
                         break;
 
-                    Console.WriteLine("Book ID not found. Please try again.");
+                    Console.WriteLine("Book ID not found. Please try again." + '\n');
                 }
 
                 int memberId;
@@ -338,7 +336,7 @@ namespace book_Managment
                     if (ExistedId(connection, "members_manage", memberId))
                         break;
 
-                    Console.WriteLine("Member ID not found. Please try again.");
+                    Console.WriteLine("Member ID not found. Please try again." + '\n');
                 }
 
                 DateTime borrowedDate;
@@ -348,7 +346,7 @@ namespace book_Managment
                     if (borrowedDate.Date <= DateTime.Today)
                         break;
 
-                    Console.WriteLine("Borrowed date cannot be in the future. Please try again.");
+                    Console.WriteLine("Borrowed date cannot be in the future. Please try again." + '\n');
                 }
 
                 object returnedValue;
@@ -363,23 +361,14 @@ namespace book_Managment
                     if (returnedDate.Date > borrowedDate.Date)
                         break;
 
-                    Console.WriteLine("Returned date must be after borrowed date. Please try again.");
+                    Console.WriteLine("Returned date must be after borrowed date. Please try again." + '\n');
                 }
 
-                string activeBorrowQuery = @"SELECT COUNT(*) FROM borrow_history WHERE BookID = @BookID AND MemberID = @MemberID AND Returned_Date IS NULL";
-
-                using (SqlCommand activeCheck = new SqlCommand(activeBorrowQuery, connection))
+                if (ActiveBorrowExists(bookId, memberId))
                 {
-                    activeCheck.Parameters.AddWithValue("@BookID", bookId);
-                    activeCheck.Parameters.AddWithValue("@MemberID", memberId);
-
-                    int activeCount = (int)activeCheck.ExecuteScalar();
-                    if (activeCount > 0)
-                    {
-                        Console.WriteLine("This member is already borrowing this book and hasn't returned it yet!");
-                        Pause();
-                        return;
-                    }
+                    Console.WriteLine("This member is already borrowing this book and hasn't returned it yet!" + '\n');
+                    Pause();
+                    return;
                 }
 
                 using SqlCommand command = new SqlCommand("sp_InsertHistory", connection);
@@ -390,14 +379,14 @@ namespace book_Managment
                 command.Parameters.AddWithValue("@Returned_Date", returnedValue);
 
                 command.ExecuteNonQuery();
-                Console.WriteLine("1 row inserted!");
+                Console.WriteLine("1 row inserted!" + '\n');
 
                 ViewHistory();
                 Pause();
             }
             catch (OperationCanceledException)
             {
-                Console.WriteLine("Operation canceled. Returning to history menu.");
+                Console.WriteLine("Operation canceled. Returning to history menu." + '\n');
                 Pause();
             }
         }
@@ -405,13 +394,13 @@ namespace book_Managment
         // -------------------- Validation --------------------
         private static void Pause()
         {
-            Console.WriteLine("Press any key to continue...");
+            Console.WriteLine("Press any key to continue..." + '\n');
             Console.ReadKey();
         }
 
         private static void CancelHint()
         {
-            Console.WriteLine("Press Escape key to stop and go back.");
+            Console.WriteLine("Press Escape key to stop and go back." + '\n');
             Console.WriteLine();
         }
 
@@ -463,7 +452,8 @@ namespace book_Managment
 
                 if (string.IsNullOrWhiteSpace(input))
                 {
-                    Console.WriteLine("Input cannot be empty. Please try again.");
+                    Console.WriteLine("Input cannot be empty. Please try again." + '\n');
+                    Console.WriteLine();
                     continue;
                 }
 
@@ -479,13 +469,15 @@ namespace book_Managment
 
                 if (string.IsNullOrWhiteSpace(input))
                 {
-                    Console.WriteLine("Input cannot be empty. Please try again.");
+                    Console.WriteLine("Input cannot be empty. Please try again." + '\n');
+                    Console.WriteLine();
                     continue;
                 }
 
                 if (!input.All(c => char.IsLetter(c) || char.IsWhiteSpace(c)))
                 {
-                    Console.WriteLine("Input must contain only letters and spaces. Please try again.");
+                    Console.WriteLine("Input must contain only letters and spaces. Please try again." + '\n');
+                    Console.WriteLine();
                     continue;
                 }
 
@@ -501,13 +493,13 @@ namespace book_Managment
 
                 if (!int.TryParse(input, out int result))
                 {
-                    Console.WriteLine("Invalid! Please enter a number.");
+                    Console.WriteLine("Invalid! Please enter a number." + '\n');
                     continue;
                 }
 
                 if (result < 0)
                 {
-                    Console.WriteLine("Number cannot be negative. Please try again.");
+                    Console.WriteLine("Number cannot be negative. Please try again." + '\n');
                     continue;
                 }
 
@@ -523,25 +515,28 @@ namespace book_Managment
 
                 if (!int.TryParse(input, out int result))
                 {
-                    Console.WriteLine("Invalid! Please enter a number.");
+                    Console.WriteLine("Invalid! Please enter a number." + '\n');
                     continue;
                 }
 
                 if (result < 0)
                 {
-                    Console.WriteLine("Number cannot be negative. Please try again.");
+                    Console.WriteLine("Number cannot be negative. Please try again." + '\n');
+                    Console.WriteLine();
                     continue;
                 }
 
                 if (result > DateTime.Today.Year)
                 {
-                    Console.WriteLine("Year cannot be in the future. Please try again.");
+                    Console.WriteLine("Year cannot be in the future. Please try again." + '\n');
+                    Console.WriteLine();
                     continue;
                 }
 
                 if (result < 1000)
                 {
-                    Console.WriteLine("Year must be a 4-digit number. Please try again.");
+                    Console.WriteLine("Year must be a 4-digit number. Please try again." + '\n');
+                    Console.WriteLine();
                     continue;
                 }
 
@@ -565,7 +560,7 @@ namespace book_Managment
                     return result;
                 }
 
-                Console.WriteLine("Invalid! Use format yyyy-MM-dd.");
+                Console.WriteLine("Invalid! Use format yyyy-MM-dd." + '\n');
             }
         }
 
@@ -588,18 +583,75 @@ namespace book_Managment
                     return result;
                 }
 
-                Console.WriteLine("Invalid! Use format yyyy-MM-dd or press Enter to skip.");
+                Console.WriteLine("Invalid! Use format yyyy-MM-dd or press Enter to skip." + '\n');
             }
         }
 
         private static bool ExistedId(SqlConnection connection, string tableName, int id)
         {
-            string query = $"SELECT COUNT(*) FROM {tableName} WHERE Id = @Id";
+            _ = connection;
 
-            using SqlCommand command = new SqlCommand(query, connection);
-            command.Parameters.AddWithValue("@Id", id);
+            return tableName switch
+            {
+                "books_manage" => BookExists(id),
+                "members_manage" => MemberExists(id),
+                "borrow_history" => HistoryExists(id),
+                _ => throw new ArgumentException("Invalid table name.")
+            };
+        }
+        private static int ExecuteCountProcedure(string procedureName, Action<SqlCommand>? addParameters = null)
+        {
+            using SqlConnection connection = new SqlConnection(connectionString);
+            connection.Open();
 
-            return (int)command.ExecuteScalar() > 0;
+            using SqlCommand command = new SqlCommand(procedureName, connection);
+            command.CommandType = CommandType.StoredProcedure;
+
+            addParameters?.Invoke(command);
+
+            return Convert.ToInt32(command.ExecuteScalar());
+        }
+
+        private static bool BookExists(int id)
+        {
+            return ExecuteCountProcedure("sp_CheckBookExists", cmd =>
+            {
+                cmd.Parameters.AddWithValue("@Id", id);
+            }) > 0;
+        }
+
+        private static bool MemberExists(int id)
+        {
+            return ExecuteCountProcedure("sp_CheckMemberExists", cmd =>
+            {
+                cmd.Parameters.AddWithValue("@Id", id);
+            }) > 0;
+        }
+
+        private static bool HistoryExists(int id)
+        {
+            return ExecuteCountProcedure("sp_CheckHistoryExists", cmd =>
+            {
+                cmd.Parameters.AddWithValue("@Id", id);
+            }) > 0;
+        }
+
+        private static bool DuplicateBookExists(string title, string author)
+        {
+            return ExecuteCountProcedure("sp_CheckDuplicateBook", cmd =>
+            {
+                cmd.Parameters.AddWithValue("@Title", title);
+                cmd.Parameters.AddWithValue("@Author", author);
+            }) > 0;
+        }
+
+        private static bool ActiveBorrowExists(int bookId, int memberId)
+        {
+            return ExecuteCountProcedure("sp_CheckActiveBorrow", cmd =>
+            {
+                cmd.Parameters.AddWithValue("@BookID", bookId);
+                cmd.Parameters.AddWithValue("@MemberID", memberId);
+            }) > 0;
         }
     }
 }

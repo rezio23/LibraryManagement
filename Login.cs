@@ -6,6 +6,12 @@ namespace book_Managment
 {
     internal class Login
     {
+        internal static void Show()
+        {
+            Login login = new Login();
+            login.ShowLogin();
+        }
+
         private string adminUsername = "Sombath";
         private string adminPassword = "admin123";
         private string userUsername = "User";
