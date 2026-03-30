@@ -40,7 +40,7 @@ namespace book_Managment
                         Console.ReadKey();
 
                         UserDashboard.Show();
-                        return;
+                        continue;
                     }
                     else
                     {
