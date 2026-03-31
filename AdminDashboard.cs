@@ -56,7 +56,7 @@ namespace book_Managment
                     case "2": AddBook(); break;
                     case "3": UpdateBook(); break;
                     case "4": DeleteBook(); break;
-                    case "5": return;
+                    case "5": Console.Clear(); return;
                     default:
                         Console.WriteLine("Invalid choice. Please try again." + '\n');
                         break;
@@ -114,18 +114,20 @@ namespace book_Managment
 
                     connection = new SqlConnection(connectionString);
                     command = new SqlCommand("sp_InsertBook", connection);
+                    command.CommandType = CommandType.StoredProcedure;
                     connection.Open();
 
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@Title", bookTitle);
-                    command.Parameters.AddWithValue("@Author", authorName);
-                    command.Parameters.AddWithValue("@Publish", publishYear);
-                    command.Parameters.AddWithValue("@Category", bookCategory);
-                    command.Parameters.AddWithValue("@Total", totalBooks);
+                    AddParams(command,
+                        ("@Title", bookTitle),
+                        ("@Author", authorName),
+                        ("@Publish", publishYear),
+                        ("@Category", bookCategory),
+                        ("@Total", totalBooks)
+                    );
                     int row = command.ExecuteNonQuery();
 
-                    Console.WriteLine("Inserted 1 data!");
                     ViewBook();
+                    Console.WriteLine("Inserted 1 data!" + '\n');
                     Pause();
                 }
                 catch (OperationCanceledException)
@@ -211,8 +213,8 @@ namespace book_Managment
 
                             ExecuteBookUpdateProcedure(updateBookId, title: newBookTitle);
 
-                            Console.WriteLine("Book title updated!");
                             ViewBook();
+                            Console.WriteLine("Book title updated!" + '\n');
                             Pause();
                         }
 
@@ -250,8 +252,8 @@ namespace book_Managment
 
                             ExecuteBookUpdateProcedure(updateBookId, author: newAuthorName);
 
-                            Console.WriteLine("Author name updated!");
                             ViewBook();
+                            Console.WriteLine("Author name updated!" + '\n');
                             Pause();
                         }
                         finally
@@ -281,8 +283,8 @@ namespace book_Managment
 
                             ExecuteBookUpdateProcedure(updateBookId, publish: publishYear);
 
-                            Console.WriteLine("Publish year updated!");
                             ViewBook();
+                            Console.WriteLine("Publish year updated!" + '\n');
                             Pause();
                         }
                         finally
@@ -312,8 +314,8 @@ namespace book_Managment
 
                             ExecuteBookUpdateProcedure(updateBookId, category: bookCategory);
 
-                            Console.WriteLine("Book category updated!");
                             ViewBook();
+                            Console.WriteLine("Book category updated!" + '\n');
                             Pause();
                         }
                         finally
@@ -348,8 +350,8 @@ namespace book_Managment
 
                             ExecuteBookUpdateProcedure(updateBookId, total: totalBooks);
 
-                            Console.WriteLine("Book total updated!");
                             ViewBook();
+                            Console.WriteLine("Book total updated!" + '\n');
                             Pause();
                         }
                         finally
@@ -406,11 +408,14 @@ namespace book_Managment
 
                     command = new SqlCommand("sp_DeleteBook", connection);
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@Id", deleteId);
+                    AddParams(command,
+                        ("@Id", deleteId)
+                    );
 
                     int row = command.ExecuteNonQuery();
-                    Console.WriteLine(row > 0 ? "1 row deleted!" : "ID not found! Please try again!" + '\n');
-                    Pause(); return;
+                    ViewBook();
+                    Console.WriteLine(row > 0 ? "1 row deleted!" + '\n' : "ID not found! Please try again!" + '\n');
+                    Pause();
                 }
                 catch (OperationCanceledException)
                 {
@@ -438,7 +443,7 @@ namespace book_Managment
                     case "2": AddMember(); break;
                     case "3": UpdateMember(); break;
                     case "4": DeleteMember(); break;
-                    case "5": return;
+                    case "5": Console.Clear(); return;
                     default: Console.WriteLine("Invalid choice. Please try again." + "\n"); break;
                 }
             }
@@ -531,13 +536,17 @@ namespace book_Managment
                     command = new SqlCommand("sp_InsertMember", connection);
                     command.CommandType = CommandType.StoredProcedure;
 
-                    command.Parameters.AddWithValue("@Name", memberName);
-                    command.Parameters.AddWithValue("@Dob", memberDOB);
-                    command.Parameters.AddWithValue("@Member_Since", memberShip);
+                    AddParams(command,
+                        ("@Name", memberName),
+                        ("@Dob", memberDOB),
+                        ("@Member_Since", memberShip)
+                    );
 
                     int row = command.ExecuteNonQuery();
-                    Console.WriteLine("1 row inserted!");
-                    Pause(); return;
+
+                    ViewMember();
+                    Console.WriteLine("1 row inserted!" + '\n');
+                    Pause();
                 }
                 catch (OperationCanceledException)
                 {
@@ -614,8 +623,8 @@ namespace book_Managment
 
                             ExecuteMemberUpdateProcedure(updateMemberId, name: updateMemberName);
 
-                            Console.WriteLine("Member name updated!");
                             ViewMember();
+                            Console.WriteLine("Member name updated!" + '\n');
                             Pause();
                         }
                         finally
@@ -669,8 +678,8 @@ namespace book_Managment
 
                             ExecuteMemberUpdateProcedure(updateMemberId, dob: updateMemberDOB);
 
-                            Console.WriteLine("Member DOB updated!");
                             ViewMember();
+                            Console.WriteLine("Member DOB updated!" + '\n');
                             Pause();
                         }
                         finally
@@ -718,8 +727,8 @@ namespace book_Managment
 
                             ExecuteMemberUpdateProcedure(updateMemberId, memberSince: updateMemberShip);
 
-                            Console.WriteLine("Membership date updated!");
                             ViewMember();
+                            Console.WriteLine("Membership date updated!" + '\n');
                             Pause();
                         }
                         finally
@@ -777,10 +786,14 @@ namespace book_Managment
                     command = new SqlCommand("sp_DeleteMember", connection);
                     command.CommandType = CommandType.StoredProcedure;
 
-                    command.Parameters.AddWithValue("@Id", deleteMemberId);
+                    AddParams(command,
+                        ("@Id", deleteMemberId)
+                    );
                     int row = command.ExecuteNonQuery();
-                    Console.WriteLine(row > 0 ? "1 row deleted!" : "ID not found! Please try again!" + '\n');
-                    Pause(); return;
+
+                    ViewMember();
+                    Console.WriteLine(row > 0 ? "1 row deleted!" + '\n' : "ID not found! Please try again!" + '\n');
+                    Pause();
                 }
                 catch (OperationCanceledException)
                 {
@@ -809,7 +822,7 @@ namespace book_Managment
                     case "2": AddHistory(); break;
                     case "3": UpdateHistory(); break;
                     case "4": DeleteHistory(); break;
-                    case "5": return;
+                    case "5": Console.Clear(); return;
                     default: Console.WriteLine("Invalid choice. Please try again." + '\n'); break;
                 }
             }
@@ -916,13 +929,17 @@ namespace book_Managment
                         return;
                     }
 
-                    command.Parameters.AddWithValue("@BookID", bookId);
-                    command.Parameters.AddWithValue("@MemberID", memberId);
-                    command.Parameters.AddWithValue("@Borrowed_Date", borrowedDate);
-                    command.Parameters.AddWithValue("@Returned_Date", returnedValue);
+                    AddParams(command,
+                        ("@BookID", bookId),
+                        ("@MemberID", memberId),
+                        ("@Borrowed_Date", borrowedDate),
+                        ("@Returned_Date", returnedValue)
+                    );
+
                     int row = command.ExecuteNonQuery();
-                    Console.WriteLine("1 row inserted!");
-                    Pause(); return;
+                    ViewHistory();
+                    Console.WriteLine("1 row inserted!" + '\n');
+                    Pause();
                 }
                 catch (OperationCanceledException)
                 {
@@ -1008,8 +1025,8 @@ namespace book_Managment
 
                             ExecuteHistoryUpdateProcedure(updateHistoryId, bookId: newBookId);
 
-                            Console.WriteLine("Book ID updated!");
                             ViewHistory();
+                            Console.WriteLine("Book ID updated!" + '\n');
                             Pause();
                         }
                         finally
@@ -1046,8 +1063,8 @@ namespace book_Managment
 
                             ExecuteHistoryUpdateProcedure(updateHistoryId, memberId: newMemberId);
 
-                            Console.WriteLine("Member ID updated!");
                             ViewHistory();
+                            Console.WriteLine("Member ID updated!" + '\n');
                             Pause();
                         }
                         finally
@@ -1099,8 +1116,8 @@ namespace book_Managment
 
                             ExecuteHistoryUpdateProcedure(updateHistoryId, borrowedDate: newBorrowedDate);
 
-                            Console.WriteLine("Borrowed date updated!");
                             ViewHistory();
+                            Console.WriteLine("Borrowed date updated!" + '\n');
                             Pause();
                         }
                         finally
@@ -1151,8 +1168,8 @@ namespace book_Managment
 
                             ExecuteHistoryUpdateProcedure(updateHistoryId, returnedDate: returnedValue);
 
-                            Console.WriteLine("Returned date updated!");
                             ViewHistory();
+                            Console.WriteLine("Returned date updated!" + '\n');
                             Pause();
                         }
                         finally
@@ -1203,10 +1220,13 @@ namespace book_Managment
                     command = new SqlCommand("sp_DeleteHistory", connection);
                     command.CommandType = CommandType.StoredProcedure;
 
-                    command.Parameters.AddWithValue("@Id", deleteHistoryId);
+                    AddParams(command,
+                        ("@Id", deleteHistoryId)
+                    );
                     int row = command.ExecuteNonQuery();
-                    Console.WriteLine(row > 0 ? "1 row deleted!" : "ID not found!" + '\n');
-                    Pause(); return;
+                    ViewHistory();
+                    Console.WriteLine(row > 0 ? "1 row deleted!" + '\n' : "ID not found!" + '\n');
+                    Pause();
                 }
                 catch (OperationCanceledException)
                 {
@@ -1463,6 +1483,64 @@ namespace book_Managment
                 returnedDate
             );
         }
+        private static void AddParams(SqlCommand command, params (string Name, object? Value)[] parameters)
+        {
+            foreach (var (name, value) in parameters)
+            {
+                command.Parameters.AddWithValue(name, value ?? DBNull.Value);
+            }
+        }
+
+        private static void AddBookUpdateParams(
+            SqlCommand command,
+            int id,
+            string title,
+            string author,
+            int publish,
+            string category,
+            int total)
+        {
+            AddParams(command,
+                ("@Id", id),
+                ("@Title", title),
+                ("@Author", author),
+                ("@Publish", publish),
+                ("@Category", category),
+                ("@Total", total)
+            );
+        }
+
+        private static void AddMemberUpdateParams(
+            SqlCommand command,
+            int id,
+            string name,
+            DateTime dob,
+            DateTime memberSince)
+        {
+            AddParams(command,
+                ("@Id", id),
+                ("@Name", name),
+                ("@Dob", dob),
+                ("@Member_Since", memberSince)
+            );
+        }
+
+        private static void AddHistoryUpdateParams(
+            SqlCommand command,
+            int id,
+            int bookId,
+            int memberId,
+            DateTime borrowedDate,
+            object returnedDate)
+        {
+            AddParams(command,
+                ("@Id", id),
+                ("@BookID", bookId),
+                ("@MemberID", memberId),
+                ("@Borrowed_Date", borrowedDate),
+                ("@Returned_Date", returnedDate)
+            );
+        }
 
         private static void ExecuteBookUpdateProcedure(
     int id,
@@ -1480,21 +1558,24 @@ namespace book_Managment
             using SqlCommand command = new SqlCommand("sp_UpdateBook", connection);
             command.CommandType = CommandType.StoredProcedure;
 
-            command.Parameters.AddWithValue("@Id", id);
-            command.Parameters.AddWithValue("@Title", title ?? current.Title);
-            command.Parameters.AddWithValue("@Author", author ?? current.Author);
-            command.Parameters.AddWithValue("@Publish", publish ?? current.Publish);
-            command.Parameters.AddWithValue("@Category", category ?? current.Category);
-            command.Parameters.AddWithValue("@Total", total ?? current.Total);
+            AddBookUpdateParams(
+                command,
+                id,
+                title ?? current.Title,
+                author ?? current.Author,
+                publish ?? current.Publish,
+                category ?? current.Category,
+                total ?? current.Total
+            );
 
             command.ExecuteNonQuery();
         }
 
         private static void ExecuteMemberUpdateProcedure(
-    int id,
-    string? name = null,
-    DateTime? dob = null,
-    DateTime? memberSince = null)
+            int id,
+            string? name = null,
+            DateTime? dob = null,
+            DateTime? memberSince = null)
         {
             var current = GetMemberById(id);
 
@@ -1504,21 +1585,23 @@ namespace book_Managment
             using SqlCommand command = new SqlCommand("sp_UpdateMember", connection);
             command.CommandType = CommandType.StoredProcedure;
 
-            command.Parameters.AddWithValue("@Id", id);
-            command.Parameters.AddWithValue("@Name", name ?? current.Name);
-            command.Parameters.AddWithValue("@Dob", dob ?? current.Dob);
-            command.Parameters.AddWithValue("@Member_Since", memberSince ?? current.MemberSince);
+            AddMemberUpdateParams(
+                command,
+                id,
+                name ?? current.Name,
+                dob ?? current.Dob,
+                memberSince ?? current.MemberSince
+            );
 
             command.ExecuteNonQuery();
         }
 
-
         private static void ExecuteHistoryUpdateProcedure(
-    int id,
-    int? bookId = null,
-    int? memberId = null,
-    DateTime? borrowedDate = null,
-    object? returnedDate = null)
+            int id,
+            int? bookId = null,
+            int? memberId = null,
+            DateTime? borrowedDate = null,
+            object? returnedDate = null)
         {
             var current = GetHistoryById(id);
 
@@ -1527,7 +1610,6 @@ namespace book_Managment
             DateTime finalBorrowedDate = borrowedDate ?? current.BorrowedDate;
             object finalReturnedDate = returnedDate ?? current.ReturnedDate;
 
-            // Prevent duplicate active borrow
             if (finalReturnedDate == DBNull.Value &&
                 ActiveBorrowExistsExcludeHistoryId(id, finalBookId, finalMemberId))
             {
@@ -1540,11 +1622,14 @@ namespace book_Managment
             using SqlCommand command = new SqlCommand("sp_UpdateHistory", connection);
             command.CommandType = CommandType.StoredProcedure;
 
-            command.Parameters.AddWithValue("@Id", id);
-            command.Parameters.AddWithValue("@BookID", finalBookId);
-            command.Parameters.AddWithValue("@MemberID", finalMemberId);
-            command.Parameters.AddWithValue("@Borrowed_Date", finalBorrowedDate);
-            command.Parameters.AddWithValue("@Returned_Date", finalReturnedDate);
+            AddHistoryUpdateParams(
+                command,
+                id,
+                finalBookId,
+                finalMemberId,
+                finalBorrowedDate,
+                finalReturnedDate
+            );
 
             command.ExecuteNonQuery();
         }

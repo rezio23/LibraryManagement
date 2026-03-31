@@ -16,18 +16,18 @@ namespace book_Managment
             Console.Clear();
             while (true)
             {
-                Console.WriteLine("1. Book's Data" + '\n');
-                Console.WriteLine("2. Member's Data" + '\n');
-                Console.WriteLine("3. Book's History" + '\n');
-                Console.WriteLine("4. Logout" + '\n');
+                Console.WriteLine("1. Book's Data");
+                Console.WriteLine("2. Member's Data");
+                Console.WriteLine("3. Book's History");
+                Console.WriteLine("4. Logout");
                 Console.Write("Enter the Main Dashboard's value: ");
 
                 switch (Console.ReadLine())
                 {
-                    case "1": BookMenu(); break;
-                    case "2": MemberMenu(); break;
-                    case "3": HistoryMenu(); break;
-                    case "4": Logout(); return;
+                    case "1": Console.Clear(); BookMenu(); break;
+                    case "2": Console.Clear(); MemberMenu(); break;
+                    case "3": Console.Clear(); HistoryMenu(); break;
+                    case "4": Console.Clear(); Logout(); return;
                     default:
                         Console.WriteLine("Invalid choice. Please try again." + '\n');
                         break;
@@ -49,16 +49,16 @@ namespace book_Managment
             Console.Clear();
             while (true)
             {
-                Console.WriteLine("1. View Books" + '\n');
-                Console.WriteLine("2. Add Books" + '\n');
-                Console.WriteLine("3. Back" + '\n');
+                Console.WriteLine("1. View Books");
+                Console.WriteLine("2. Add Books");
+                Console.WriteLine("3. Back");
                 Console.Write("Enter book's menu: ");
 
                 switch (Console.ReadLine())
                 {
                     case "1": ViewBook(); Pause(); break;
                     case "2": AddBook(); break;
-                    case "3": return;
+                    case "3": Console.Clear(); return;
                     default:
                         Console.WriteLine("Invalid choice. Please try again." + '\n');
                         break;
@@ -116,15 +116,18 @@ namespace book_Managment
 
                 using SqlCommand command = new SqlCommand("sp_InsertBook", connection);
                 command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.AddWithValue("@Title", bookTitle);
-                command.Parameters.AddWithValue("@Author", authorName);
-                command.Parameters.AddWithValue("@Publish", publishYear);
-                command.Parameters.AddWithValue("@Category", bookCategory);
-                command.Parameters.AddWithValue("@Total", totalBooks);
-                command.ExecuteNonQuery();
 
-                Console.WriteLine("1 row inserted!" + '\n');
+                AddParams(command,
+                    ("@Title", bookTitle),
+                    ("@Author", authorName),
+                    ("@Publish", publishYear),
+                    ("@Category", bookCategory),
+                    ("@Total", totalBooks)
+                );
+
+                int row = command.ExecuteNonQuery();
                 ViewBook();
+                Console.WriteLine(row > 0 ? "1 row inserted!\n" : "Insert failed!\n");
                 Pause();
             }
             catch (OperationCanceledException)
@@ -140,16 +143,16 @@ namespace book_Managment
             Console.Clear();
             while (true)
             {
-                Console.WriteLine("1. View Members" + '\n');
-                Console.WriteLine("2. Add Members" + '\n');
-                Console.WriteLine("3. Back" + '\n');
+                Console.WriteLine("1. View Members");
+                Console.WriteLine("2. Add Members");
+                Console.WriteLine("3. Back");
                 Console.Write("Enter member's menu: ");
 
                 switch (Console.ReadLine())
                 {
                     case "1": ViewMember(); Pause(); break;
                     case "2": AddMember(); break;
-                    case "3": return;
+                    case "3": Console.Clear(); return;
                     default:
                         Console.WriteLine("Invalid choice. Please try again." + '\n');
                         break;
@@ -208,8 +211,7 @@ namespace book_Managment
 
                     if (age < 15)
                     {
-                        Console.WriteLine("Member's age should be at least 15 years old!" + '\n');
-                        continue;
+                        Console.WriteLine("Member's age should be at least 15 years old!" + '\n'); continue;
                     }
 
                     break;
@@ -222,14 +224,12 @@ namespace book_Managment
 
                     if (memberShip.Date > DateTime.Today)
                     {
-                        Console.WriteLine("Membership year cannot be in the future!" + '\n');
-                        continue;
+                        Console.WriteLine("Membership year cannot be in the future!" + '\n'); continue;
                     }
 
                     if (memberShip.Date <= memberDOB.Date)
                     {
-                        Console.WriteLine("Membership date must be after DOB!" + '\n');
-                        continue;
+                        Console.WriteLine("Membership date must be after DOB!" + '\n'); continue;
                     }
 
                     break;
@@ -240,14 +240,17 @@ namespace book_Managment
 
                 using SqlCommand command = new SqlCommand("sp_InsertMember", connection);
                 command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.AddWithValue("@Name", memberName);
-                command.Parameters.AddWithValue("@Dob", memberDOB);
-                command.Parameters.AddWithValue("@Member_Since", memberShip);
 
-                command.ExecuteNonQuery();
-                Console.WriteLine("1 row inserted!" + '\n');
+                AddParams(command,
+                    ("@Name", memberName),
+                    ("@Dob", memberDOB),
+                    ("@Member_Since", memberShip)
+                );
+
+                int row = command.ExecuteNonQuery();
 
                 ViewMember();
+                Console.WriteLine(row > 0 ? "1 row inserted!\n" : "Insert failed!\n");
                 Pause();
             }
             catch (OperationCanceledException)
@@ -263,19 +266,17 @@ namespace book_Managment
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine("1. View History" + '\n');
-                Console.WriteLine("2. Add History" + '\n');
-                Console.WriteLine("3. Back" + '\n');
+                Console.WriteLine("1. View History");
+                Console.WriteLine("2. Add History");
+                Console.WriteLine("3. Back");
                 Console.Write("Enter history's menu: ");
 
                 switch (Console.ReadLine())
                 {
                     case "1": ViewHistory(); Pause(); break;
                     case "2": AddHistory(); break;
-                    case "3": return;
-                    default:
-                        Console.WriteLine("Invalid choice. Please try again." + '\n');
-                        break;
+                    case "3": Console.Clear(); return;
+                    default: Console.WriteLine("Invalid choice. Please try again." + '\n'); break;
                 }
             }
         }
@@ -323,7 +324,7 @@ namespace book_Managment
                 while (true)
                 {
                     bookId = NumberFormat("Enter Book's ID: ");
-                    if (ExistedId(connection, "books_manage", bookId))
+                    if (ExistedId("books_manage", bookId))
                         break;
 
                     Console.WriteLine("Book ID not found. Please try again." + '\n');
@@ -333,7 +334,7 @@ namespace book_Managment
                 while (true)
                 {
                     memberId = NumberFormat("Enter Member's ID: ");
-                    if (ExistedId(connection, "members_manage", memberId))
+                    if (ExistedId("members_manage", memberId))
                         break;
 
                     Console.WriteLine("Member ID not found. Please try again." + '\n');
@@ -373,15 +374,18 @@ namespace book_Managment
 
                 using SqlCommand command = new SqlCommand("sp_InsertHistory", connection);
                 command.CommandType = CommandType.StoredProcedure;
-                command.Parameters.AddWithValue("@BookID", bookId);
-                command.Parameters.AddWithValue("@MemberID", memberId);
-                command.Parameters.AddWithValue("@Borrowed_Date", borrowedDate);
-                command.Parameters.AddWithValue("@Returned_Date", returnedValue);
 
-                command.ExecuteNonQuery();
-                Console.WriteLine("1 row inserted!" + '\n');
+                AddParams(command,
+                     ("@BookID", bookId),
+                     ("@MemberID", memberId),
+                     ("@Borrowed_Date", borrowedDate),
+                     ("@Returned_Date", returnedValue)
+                );
+
+                int row = command.ExecuteNonQuery();
 
                 ViewHistory();
+                Console.WriteLine(row > 0 ? "1 row inserted!\n" : "Insert failed!\n");
                 Pause();
             }
             catch (OperationCanceledException)
@@ -395,7 +399,7 @@ namespace book_Managment
         private static void Pause()
         {
             Console.WriteLine("Press any key to continue..." + '\n');
-            Console.ReadKey();
+            Console.ReadKey(true);
         }
 
         private static void CancelHint()
@@ -587,10 +591,8 @@ namespace book_Managment
             }
         }
 
-        private static bool ExistedId(SqlConnection connection, string tableName, int id)
+        private static bool ExistedId(string tableName, int id)
         {
-            _ = connection;
-
             return tableName switch
             {
                 "books_manage" => BookExists(id),
@@ -652,6 +654,13 @@ namespace book_Managment
                 cmd.Parameters.AddWithValue("@BookID", bookId);
                 cmd.Parameters.AddWithValue("@MemberID", memberId);
             }) > 0;
+        }
+        private static void AddParams(SqlCommand command, params (string Name, object? Value)[] parameters)
+        {
+            foreach (var (name, value) in parameters)
+            {
+                command.Parameters.AddWithValue(name, value ?? DBNull.Value);
+            }
         }
     }
 }
