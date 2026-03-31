@@ -616,43 +616,53 @@ namespace book_Managment
 
         private static bool BookExists(int id)
         {
-            return ExecuteCountProcedure("sp_CheckBookExists", cmd =>
+            return ExecuteCountProcedure("sp_CheckBookExists", command =>
             {
-                cmd.Parameters.AddWithValue("@Id", id);
+                AddParams(command,
+                    ("@Id", id)
+                );
             }) > 0;
         }
 
         private static bool MemberExists(int id)
         {
-            return ExecuteCountProcedure("sp_CheckMemberExists", cmd =>
+            return ExecuteCountProcedure("sp_CheckMemberExists", command =>
             {
-                cmd.Parameters.AddWithValue("@Id", id);
+                AddParams(command,
+                    ("@Id", id)
+                );
             }) > 0;
         }
 
         private static bool HistoryExists(int id)
         {
-            return ExecuteCountProcedure("sp_CheckHistoryExists", cmd =>
+            return ExecuteCountProcedure("sp_CheckHistoryExists", command =>
             {
-                cmd.Parameters.AddWithValue("@Id", id);
+                AddParams(command,
+                    ("@Id", id)    
+                );
             }) > 0;
         }
 
         private static bool DuplicateBookExists(string title, string author)
         {
-            return ExecuteCountProcedure("sp_CheckDuplicateBook", cmd =>
+            return ExecuteCountProcedure("sp_CheckDuplicateBook", command =>
             {
-                cmd.Parameters.AddWithValue("@Title", title);
-                cmd.Parameters.AddWithValue("@Author", author);
+                AddParams(command,
+                    ("@Title", title),
+                    ("@Author", author)
+                );
             }) > 0;
         }
 
         private static bool ActiveBorrowExists(int bookId, int memberId)
         {
-            return ExecuteCountProcedure("sp_CheckActiveBorrow", cmd =>
+            return ExecuteCountProcedure("sp_CheckActiveBorrow", command =>
             {
-                cmd.Parameters.AddWithValue("@BookID", bookId);
-                cmd.Parameters.AddWithValue("@MemberID", memberId);
+                AddParams(command,
+                    ("@BookID", bookId),
+                    ("@MemberID", memberId)
+                );
             }) > 0;
         }
         private static void AddParams(SqlCommand command, params (string Name, object? Value)[] parameters)

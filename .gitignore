@@ -2,5 +2,6 @@ bin/
 obj/
 .vs/
 .dotnet/
+.nuget/
 *.user
 *.suo
