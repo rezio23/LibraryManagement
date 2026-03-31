@@ -27,20 +27,25 @@ namespace book_Managment
 
                 try
                 {
+                    Console.WriteLine("Hint -> Admin -> UserName: Sombath, Pass: admin123");
+                    Console.WriteLine("User: UserName: User, Pass: user123" + '\n');
                     string username = UsernameFormat("Enter your username: ");
                     string password = PasswordFormat("Enter your password: ");
 
                     if (username == adminUsername && password == adminPassword)
                     {
+                        Console.Clear();
                         Console.WriteLine("Login as Admin successful.");
                         Console.WriteLine("Press any key to continue...");
                         Console.ReadKey();
+                        Console.Clear();
 
                         AdminDashboard.Show();
                         return;
                     }
                     else if (username == userUsername && password == userPassword)
                     {
+                        Console.Clear();
                         Console.WriteLine("Login as User successful.");
                         Console.WriteLine("Press any key to continue...");
                         Console.ReadKey();
@@ -142,7 +147,7 @@ namespace book_Managment
         {
             while (true)
             {
-                string input = CancelInput(message);
+                string input = PasswordInput(message);
 
                 if (string.IsNullOrWhiteSpace(input))
                 {
@@ -157,6 +162,44 @@ namespace book_Managment
                 }
 
                 return input;
+            }
+        }
+        static string PasswordInput(string message)
+        {
+            Console.Write(message);
+            StringBuilder input = new StringBuilder();
+
+            while (true)
+            {
+                ConsoleKeyInfo keyInfo = Console.ReadKey(intercept: true);
+
+                if (keyInfo.Key == ConsoleKey.Escape)
+                {
+                    Console.WriteLine();
+                    throw new OperationCanceledException();
+                }
+
+                if (keyInfo.Key == ConsoleKey.Enter)
+                {
+                    Console.WriteLine();
+                    return input.ToString();
+                }
+
+                if (keyInfo.Key == ConsoleKey.Backspace)
+                {
+                    if (input.Length > 0)
+                    {
+                        input.Remove(input.Length - 1, 1);
+                        Console.Write("\b \b");
+                    }
+                    continue;
+                }
+
+                if (!char.IsControl(keyInfo.KeyChar))
+                {
+                    input.Append(keyInfo.KeyChar);
+                    Console.Write("*");
+                }
             }
         }
     }

@@ -16,18 +16,16 @@ namespace book_Managment
                 Console.WriteLine("1. Book's Data");
                 Console.WriteLine("2. Member's Data");
                 Console.WriteLine("3. Book's History");
-                Console.WriteLine("4. Exit");
+                Console.WriteLine("4. Logout");
                 Console.Write("Enter the Main Dashboard's value: ");
 
                 switch (Console.ReadLine())
                 {
-                    case "1": Book(); break;
-                    case "2": Member(); break;
-                    case "3": History(); break;
-                    case "4": Logout(); return;
-                    default:
-                        Console.WriteLine("Invalid choice. Please try again." + '\n');
-                        break;
+                    case "1": Console.Clear(); Book(); break;
+                    case "2": Console.Clear(); Member(); break;
+                    case "3": Console.Clear(); History(); break;
+                    case "4": Console.Clear(); Logout(); return;
+                    default: Console.WriteLine("Invalid choice. Please try again." + '\n'); break;
                 }
 
             }
@@ -45,7 +43,6 @@ namespace book_Managment
         {
             while (true)
             {
-                Console.Clear();
                 Console.WriteLine("1 View Books");
                 Console.WriteLine("2 Add Books");
                 Console.WriteLine("3 Update Books");
@@ -69,7 +66,6 @@ namespace book_Managment
             void ViewBook()
             {
                 Console.Clear();
-                Console.WriteLine();
                 SqlConnection? connection = null;
                 SqlCommand? command = null;
                 SqlDataReader? reader = null;
@@ -78,7 +74,7 @@ namespace book_Managment
                 connection.Open();
 
                 command = new SqlCommand("sp_GetAllBooks", connection);
-                command.CommandType = CommandType.StoredProcedure; // Procedure
+                command.CommandType = CommandType.StoredProcedure;
 
                 reader = command.ExecuteReader();
                 {
@@ -112,7 +108,7 @@ namespace book_Managment
 
                     if (DuplicateBookExists(bookTitle, authorName))
                     {
-                        Console.WriteLine("This book already exists. Please try again.");
+                        Console.WriteLine("This book already exists. Please try again." + '\n');
                         return;
                     }
 
@@ -158,11 +154,11 @@ namespace book_Managment
                         updateBookId = NumberFormat("Select ID to update: ");
                         if (updateBookId <= 0)
                         {
-                            Console.WriteLine("Book's ID must be bigger than 0!"); continue;
+                            Console.WriteLine("Book's ID must be bigger than 0!" + '\n'); continue;
                         }
                         if (!ExistedId(connection, "books_manage", updateBookId))
                         {
-                            Console.WriteLine("Book ID not found! Please try again."); continue;
+                            Console.WriteLine("Book ID not found! Please try again." + '\n'); continue;
                         }
                         break;
                     }
@@ -197,17 +193,18 @@ namespace book_Managment
 
                             if (!ExistedId(connection, "books_manage", updateBookId))
                             {
-                                Console.WriteLine("Book ID not found!");
+                                Console.WriteLine("Book ID not found!" + '\n');
                                 Pause();
                                 return;
                             }
 
-                            string newBookTitle = BookTitleFormat("Enter new Book's Title: ");
+                            Console.WriteLine();
                             var currentBook = GetBookById(updateBookId);
+                            string newBookTitle = BookTitleFormat($"Update Title: {currentBook.Title} to:  ");
 
                             if (DuplicateBookExistsExcludeId(updateBookId, newBookTitle, currentBook.Author))
                             {
-                                Console.WriteLine("Another book with the same title and author already exists!");
+                                Console.WriteLine("Another book with the same title and author already exists!" + '\n');
                                 Pause();
                                 return;
                             }
@@ -235,17 +232,18 @@ namespace book_Managment
 
                             if (!ExistedId(connection, "books_manage", updateBookId))
                             {
-                                Console.WriteLine("Book ID not found!");
+                                Console.WriteLine("Book ID not found!" + '\n');
                                 Pause();
                                 return;
                             }
 
-                            string newAuthorName = NameFormat("Enter new Author's Name: ");
+                            Console.WriteLine();
                             var currentBook = GetBookById(updateBookId);
+                            string newAuthorName = NameFormat($"Update Author: {currentBook.Author} to: ");
 
                             if (DuplicateBookExistsExcludeId(updateBookId, currentBook.Title, newAuthorName))
                             {
-                                Console.WriteLine("Another book with the same title and author already exists!");
+                                Console.WriteLine("Another book with the same title and author already exists!" + '\n');
                                 Pause();
                                 return;
                             }
@@ -272,12 +270,14 @@ namespace book_Managment
 
                             if (!ExistedId(connection, "books_manage", updateBookId))
                             {
-                                Console.WriteLine("Book ID not found!");
+                                Console.WriteLine("Book ID not found!" + "\n");
                                 Pause();
                                 return;
                             }
 
-                            int publishYear = YearFormat("Enter new Publish's Year: ");
+                            Console.WriteLine();
+                            var currentBook = GetBookById(updateBookId);
+                            int publishYear = YearFormat($"Update Publish Year: {currentBook.Publish} to: ");
 
                             ExecuteBookUpdateProcedure(updateBookId, publish: publishYear);
 
@@ -301,12 +301,14 @@ namespace book_Managment
 
                             if (!ExistedId(connection, "books_manage", updateBookId))
                             {
-                                Console.WriteLine("Book ID not found!");
+                                Console.WriteLine("Book ID not found!" + '\n');
                                 Pause();
                                 return;
                             }
 
-                            string bookCategory = NameFormat("Enter new Book's Category: ");
+                            Console.WriteLine();
+                            var currentBook = GetBookById(updateBookId);
+                            string bookCategory = NameFormat($"Update Category: {currentBook.Category} to: ");
 
                             ExecuteBookUpdateProcedure(updateBookId, category: bookCategory);
 
@@ -330,7 +332,7 @@ namespace book_Managment
 
                             if (!ExistedId(connection, "books_manage", updateBookId))
                             {
-                                Console.WriteLine("Book ID not found!");
+                                Console.WriteLine("Book ID not found!" + '\n');
                                 Pause();
                                 return;
                             }
@@ -339,7 +341,7 @@ namespace book_Managment
 
                             if (totalBooks < 0)
                             {
-                                Console.WriteLine("Book's total cannot be negative!");
+                                Console.WriteLine("Book's total cannot be negative!" + '\n');
                                 Pause();
                                 return;
                             }
@@ -398,7 +400,7 @@ namespace book_Managment
                     if (BookUsedInHistory(deleteId))
                     {
                         Console.WriteLine("Cannot delete! This book has borrow record(s) in history.");
-                        Console.WriteLine("Delete the borrow history first, then try again.");
+                        Console.WriteLine("Delete the borrow history first, then try again." + '\n');
                         return;
                     }
 
@@ -407,7 +409,7 @@ namespace book_Managment
                     command.Parameters.AddWithValue("@Id", deleteId);
 
                     int row = command.ExecuteNonQuery();
-                    Console.WriteLine(row > 0 ? "1 row deleted!" : "ID not found! Please try again!");
+                    Console.WriteLine(row > 0 ? "1 row deleted!" : "ID not found! Please try again!" + '\n');
                     Pause(); return;
                 }
                 catch (OperationCanceledException)
@@ -496,7 +498,7 @@ namespace book_Managment
 
                         if (age < 15)
                         {
-                            Console.WriteLine("Member's age should be at least 15 years old!");
+                            Console.WriteLine("Member's age should be at least 15 years old!" + '\n');
                             continue;
                         }
 
@@ -510,13 +512,13 @@ namespace book_Managment
 
                         if (memberShip.Date > DateTime.Today)
                         {
-                            Console.WriteLine("Membership year cannot be in the future!");
+                            Console.WriteLine("Membership year cannot be in the future!" + '\n');
                             continue;
                         }
 
                         if (memberShip.Date <= memberDOB.Date)
                         {
-                            Console.WriteLine("Membership date must be after DOB!");
+                            Console.WriteLine("Membership date must be after DOB!" + '\n');
                             continue;
                         }
 
@@ -535,9 +537,6 @@ namespace book_Managment
 
                     int row = command.ExecuteNonQuery();
                     Console.WriteLine("1 row inserted!");
-                    Console.WriteLine("Press any key to continue...");
-                    Console.ReadKey();
-
                     Pause(); return;
                 }
                 catch (OperationCanceledException)
@@ -567,12 +566,12 @@ namespace book_Managment
                         updateMemberId = NumberFormat("Select ID to Update: ");
                         if (updateMemberId <= 0)
                         {
-                            Console.WriteLine("Member's ID must be bigger than 0!");
+                            Console.WriteLine("Member's ID must be bigger than 0!" + '\n');
                             continue;
                         }
                         if (!ExistedId(connection, "members_manage", updateMemberId))
                         {
-                            Console.WriteLine("Member ID not found! Please try again.");
+                            Console.WriteLine("Member ID not found! Please try again." + '\n');
                             continue;
                         }
                         break;
@@ -609,7 +608,9 @@ namespace book_Managment
                                 return;
                             }
 
-                            string updateMemberName = NameFormat("Enter new Member's Name: ");
+                            Console.WriteLine();
+                            var currentMember = GetMemberById(updateMemberId);
+                            string updateMemberName = NameFormat($"Update Member Name: {currentMember.Name} to: ");
 
                             ExecuteMemberUpdateProcedure(updateMemberId, name: updateMemberName);
 
@@ -633,7 +634,7 @@ namespace book_Managment
 
                             if (!ExistedId(connection, "members_manage", updateMemberId))
                             {
-                                Console.WriteLine("Member ID not found!");
+                                Console.WriteLine("Member ID not found!" + '\n');
                                 Pause();
                                 return;
                             }
@@ -644,7 +645,8 @@ namespace book_Managment
 
                             while (true)
                             {
-                                updateMemberDOB = DateFormat("Enter Member's DOB (yyyy-MM-dd): ");
+                                Console.WriteLine();
+                                updateMemberDOB = DateFormat($"Update DOB: {currentMember.Dob:yyyy-MM-dd} to: ");
 
                                 age = DateTime.Today.Year - updateMemberDOB.Year;
                                 if (updateMemberDOB.Date > DateTime.Today.AddYears(-age))
@@ -652,13 +654,13 @@ namespace book_Managment
 
                                 if (age < 15)
                                 {
-                                    Console.WriteLine("Member's age should be at least 15 years old!");
+                                    Console.WriteLine("Member's age should be at least 15 years old!" + '\n');
                                     continue;
                                 }
 
                                 if (updateMemberDOB.Date >= currentMember.MemberSince.Date)
                                 {
-                                    Console.WriteLine("DOB must be before Membership date!");
+                                    Console.WriteLine("DOB must be before Membership date!" + '\n');
                                     continue;
                                 }
 
@@ -687,7 +689,7 @@ namespace book_Managment
 
                             if (!ExistedId(connection, "members_manage", updateMemberId))
                             {
-                                Console.WriteLine("Member ID not found!");
+                                Console.WriteLine("Member ID not found!" + '\n');
                                 Pause();
                                 return;
                             }
@@ -697,17 +699,17 @@ namespace book_Managment
 
                             while (true)
                             {
-                                updateMemberShip = DateFormat("Enter Member's Membership Year (yyyy-MM-dd): ");
+                                updateMemberShip = DateFormat($"Update Membership Date: {currentMember.MemberSince:yyyy-MM-dd} to: ");
 
                                 if (updateMemberShip.Date > DateTime.Today)
                                 {
-                                    Console.WriteLine("Membership year cannot be in the future!");
+                                    Console.WriteLine("Membership year cannot be in the future!" + '\n');
                                     continue;
                                 }
 
                                 if (updateMemberShip.Date <= currentMember.Dob.Date)
                                 {
-                                    Console.WriteLine("Membership date must be after DOB!");
+                                    Console.WriteLine("Membership date must be after DOB!" + '\n');
                                     continue;
                                 }
 
@@ -759,7 +761,7 @@ namespace book_Managment
                         deleteMemberId = NumberFormat("Select ID to Delete: ");
                         if (!ExistedId(connection, "members_manage", deleteMemberId))
                         {
-                            Console.WriteLine("Member ID not found! Please try again.");
+                            Console.WriteLine("Member ID not found! Please try again." + '\n');
                             continue;
                         }
                         break;
@@ -768,7 +770,7 @@ namespace book_Managment
                     if (MemberUsedInHistory(deleteMemberId))
                     {
                         Console.WriteLine("Cannot delete! This member has borrow record(s) in history.");
-                        Console.WriteLine("Delete the borrow history first, then try again.");
+                        Console.WriteLine("Delete the borrow history first, then try again." + '\n');
                         return;
                     }
 
@@ -777,10 +779,7 @@ namespace book_Managment
 
                     command.Parameters.AddWithValue("@Id", deleteMemberId);
                     int row = command.ExecuteNonQuery();
-                    Console.WriteLine(row > 0 ? "1 row deleted!" : "ID not found! Please try again!");
-                    Console.WriteLine("Press any key to continue...");
-                    Console.ReadKey();
-
+                    Console.WriteLine(row > 0 ? "1 row deleted!" : "ID not found! Please try again!" + '\n');
                     Pause(); return;
                 }
                 catch (OperationCanceledException)
@@ -874,7 +873,7 @@ namespace book_Managment
                         if (ExistedId(connection, "books_manage", bookId))
                             break;
 
-                        Console.WriteLine("Book ID not found. Please try again.");
+                        Console.WriteLine("Book ID not found. Please try again." + '\n');
                     }
 
                     int memberId;
@@ -885,7 +884,7 @@ namespace book_Managment
                         if (ExistedId(connection, "members_manage", memberId))
                             break;
 
-                        Console.WriteLine("Member ID not found. Please try again.");
+                        Console.WriteLine("Member ID not found. Please try again." + '\n');
                     }
 
                     DateTime borrowedDate;
@@ -893,7 +892,7 @@ namespace book_Managment
                     {
                         borrowedDate = DateFormat("Enter Borrowed Date (yyyy-MM-dd): ");
                         if (borrowedDate.Date <= DateTime.Today) break;
-                        Console.WriteLine("Borrowed date cannot be in the future. Please try again.");
+                        Console.WriteLine("Borrowed date cannot be in the future. Please try again." + '\n');
                     }
 
                     object returnedValue;
@@ -904,7 +903,7 @@ namespace book_Managment
 
                         DateTime returnedDate = (DateTime)returnedValue;
                         if (returnedDate.Date > borrowedDate.Date) break;
-                        Console.WriteLine("Returned date must be after borrowed date. Please try again.");
+                        Console.WriteLine("Returned date must be after borrowed date. Please try again." + '\n');
                     }
                     //string returnedDate = OptionalDateFormat("Enter Returned Date (yyyy-MM-dd), or press Enter to skip: ").ToString();
                     //object returnedValue = string.IsNullOrWhiteSpace(returnedDate)
@@ -913,7 +912,7 @@ namespace book_Managment
 
                     if (ActiveBorrowExists(bookId, memberId))
                     {
-                        Console.WriteLine("This member is already borrowing this book and hasn't returned it yet!");
+                        Console.WriteLine("This member is already borrowing this book and hasn't returned it yet!" + '\n');
                         return;
                     }
 
@@ -923,9 +922,6 @@ namespace book_Managment
                     command.Parameters.AddWithValue("@Returned_Date", returnedValue);
                     int row = command.ExecuteNonQuery();
                     Console.WriteLine("1 row inserted!");
-                    Console.WriteLine("Press any key to continue...");
-                    Console.ReadKey();
-
                     Pause(); return;
                 }
                 catch (OperationCanceledException)
@@ -952,15 +948,15 @@ namespace book_Managment
 
                     while (true)
                     {
-                        updateHistoryId = NumberFormat("Select ID to Update: ");
+                        updateHistoryId = NumberFormat("Select ID to Update: " + '\n');
                         if (updateHistoryId <= 0)
                         {
-                            Console.WriteLine("History ID must be bigger than 0!");
+                            Console.WriteLine("History ID must be bigger than 0!" + '\n');
                             continue;
                         }
                         if (!ExistedId(connection, "borrow_history", updateHistoryId))
                         {
-                            Console.WriteLine("History ID not found! Please try again.");
+                            Console.WriteLine("History ID not found! Please try again." + '\n');
                             continue;
                         }
                         break;
@@ -994,16 +990,18 @@ namespace book_Managment
 
                             if (!ExistedId(connection, "borrow_history", updateHistoryId))
                             {
-                                Console.WriteLine("History ID not found. Please try again.");
+                                Console.WriteLine("History ID not found. Please try again." + '\n');
                                 Pause();
                                 return;
                             }
 
-                            int newBookId = NumberFormat("Enter new Book's ID: ");
+                            Console.WriteLine();
+                            var currentHistory = GetHistoryById(updateHistoryId);
+                            int newBookId = NumberFormat($"Update Book ID: {currentHistory.BookId} to: ");
 
                             if (!ExistedId(connection, "books_manage", newBookId))
                             {
-                                Console.WriteLine("Book ID not found. Please try again.");
+                                Console.WriteLine("Book ID not found. Please try again." + '\n');
                                 Pause();
                                 return;
                             }
@@ -1030,16 +1028,18 @@ namespace book_Managment
 
                             if (!ExistedId(connection, "borrow_history", updateHistoryId))
                             {
-                                Console.WriteLine("History ID not found. Please try again.");
+                                Console.WriteLine("History ID not found. Please try again." + '\n');
                                 Pause();
                                 return;
                             }
 
-                            int newMemberId = NumberFormat("Enter new Member's ID: ");
+                            Console.WriteLine();
+                            var currentHistory = GetHistoryById(updateHistoryId);
+                            int newMemberId = NumberFormat($"Update Member ID: {currentHistory.MemberId} to: ");
 
                             if (!ExistedId(connection, "members_manage", newMemberId))
                             {
-                                Console.WriteLine("Member ID not found. Please try again.");
+                                Console.WriteLine("Member ID not found. Please try again." + '\n');
                                 Pause();
                                 return;
                             }
@@ -1066,7 +1066,7 @@ namespace book_Managment
 
                             if (!ExistedId(connection, "borrow_history", updateHistoryId))
                             {
-                                Console.WriteLine("History ID not found. Please try again.");
+                                Console.WriteLine("History ID not found. Please try again." + '\n');
                                 Pause();
                                 return;
                             }
@@ -1076,11 +1076,11 @@ namespace book_Managment
 
                             while (true)
                             {
-                                newBorrowedDate = DateFormat("Enter new Borrowed Date (yyyy-MM-dd): ");
+                                newBorrowedDate = DateFormat($"Update Borrowed Date: {currentHistory.BorrowedDate:yyyy-MM-dd} to: ");
 
                                 if (newBorrowedDate.Date > DateTime.Today)
                                 {
-                                    Console.WriteLine("Borrowed date cannot be in the future. Please try again.");
+                                    Console.WriteLine("Borrowed date cannot be in the future. Please try again." + '\n');
                                     continue;
                                 }
 
@@ -1089,7 +1089,7 @@ namespace book_Managment
                                     DateTime currentReturnedDate = Convert.ToDateTime(currentHistory.ReturnedDate);
                                     if (newBorrowedDate.Date >= currentReturnedDate.Date)
                                     {
-                                        Console.WriteLine("Borrowed date must be before returned date. Please try again.");
+                                        Console.WriteLine("Borrowed date must be before returned date. Please try again." + '\n');
                                         continue;
                                     }
                                 }
@@ -1119,7 +1119,7 @@ namespace book_Managment
 
                             if (!ExistedId(connection, "borrow_history", updateHistoryId))
                             {
-                                Console.WriteLine("History ID not found. Please try again.");
+                                Console.WriteLine("History ID not found. Please try again." + '\n');
                                 Pause();
                                 return;
                             }
@@ -1129,7 +1129,11 @@ namespace book_Managment
 
                             while (true)
                             {
-                                returnedValue = OptionalDateFormat("Enter new Returned Date (yyyy-MM-dd), or press Enter to skip: ");
+                                string oldReturnedDate = currentHistory.ReturnedDate == DBNull.Value
+                ? "Not Returned"
+                : Convert.ToDateTime(currentHistory.ReturnedDate).ToString("yyyy-MM-dd");
+
+                                returnedValue = OptionalDateFormat($"Press Enter to mark as Not Returned, or Update Returned Date: {oldReturnedDate} to: ");
 
                                 if (returnedValue == DBNull.Value)
                                     break;
@@ -1138,7 +1142,7 @@ namespace book_Managment
 
                                 if (returnedDate.Date <= currentHistory.BorrowedDate.Date)
                                 {
-                                    Console.WriteLine("Returned date must be after borrowed date. Please try again.");
+                                    Console.WriteLine("Returned date must be after borrowed date. Please try again." + '\n');
                                     continue;
                                 }
 
@@ -1190,7 +1194,7 @@ namespace book_Managment
                         deleteHistoryId = NumberFormat("Select ID to Delete: ");
                         if (!ExistedId(connection, "borrow_history", deleteHistoryId))
                         {
-                            Console.WriteLine("History ID not found! Please try again.");
+                            Console.WriteLine("History ID not found! Please try again." + '\n');
                             continue;
                         }
                         break;
@@ -1201,7 +1205,7 @@ namespace book_Managment
 
                     command.Parameters.AddWithValue("@Id", deleteHistoryId);
                     int row = command.ExecuteNonQuery();
-                    Console.WriteLine(row > 0 ? "1 row deleted!" : "ID not found!");
+                    Console.WriteLine(row > 0 ? "1 row deleted!" : "ID not found!" + '\n');
                     Pause(); return;
                 }
                 catch (OperationCanceledException)
@@ -1269,7 +1273,7 @@ namespace book_Managment
                 string input = CancelInput(title);
                 if (string.IsNullOrWhiteSpace(input))
                 {
-                    Console.WriteLine("Input cannot be empty. Please try again.");
+                    Console.WriteLine("Input cannot be empty. Please try again." + '\n');
                     continue;
                 }
                 return input;
@@ -1384,7 +1388,7 @@ namespace book_Managment
                 "books_manage" => BookExists(id),
                 "members_manage" => MemberExists(id),
                 "borrow_history" => HistoryExists(id),
-                _ => throw new ArgumentException("Invalid table name.")
+                _ => throw new ArgumentException("Invalid table name." + '\n')
             };
         }
         private static (string Title, string Author, int Publish, string Category, int Total) GetBookById(int id)
@@ -1423,7 +1427,7 @@ namespace book_Managment
             using SqlDataReader reader = command.ExecuteReader();
 
             if (!reader.Read())
-                throw new Exception("Member not found.");
+                throw new Exception("Member not found." + '\n');
 
             return
             (
@@ -1445,7 +1449,7 @@ namespace book_Managment
             using SqlDataReader reader = command.ExecuteReader();
 
             if (!reader.Read())
-                throw new Exception("History not found.");
+                throw new Exception("History not found." + '\n');
 
             object returnedDate = reader["Returned_Date"] == DBNull.Value
                 ? DBNull.Value
@@ -1518,6 +1522,18 @@ namespace book_Managment
         {
             var current = GetHistoryById(id);
 
+            int finalBookId = bookId ?? current.BookId;
+            int finalMemberId = memberId ?? current.MemberId;
+            DateTime finalBorrowedDate = borrowedDate ?? current.BorrowedDate;
+            object finalReturnedDate = returnedDate ?? current.ReturnedDate;
+
+            // Prevent duplicate active borrow
+            if (finalReturnedDate == DBNull.Value &&
+                ActiveBorrowExistsExcludeHistoryId(id, finalBookId, finalMemberId))
+            {
+                throw new Exception("This member is already borrowing this book and hasn't returned it yet!");
+            }
+
             using SqlConnection connection = new SqlConnection(connectionString);
             connection.Open();
 
@@ -1525,10 +1541,10 @@ namespace book_Managment
             command.CommandType = CommandType.StoredProcedure;
 
             command.Parameters.AddWithValue("@Id", id);
-            command.Parameters.AddWithValue("@BookID", bookId ?? current.BookId);
-            command.Parameters.AddWithValue("@MemberID", memberId ?? current.MemberId);
-            command.Parameters.AddWithValue("@Borrowed_Date", borrowedDate ?? current.BorrowedDate);
-            command.Parameters.AddWithValue("@Returned_Date", returnedDate ?? current.ReturnedDate);
+            command.Parameters.AddWithValue("@BookID", finalBookId);
+            command.Parameters.AddWithValue("@MemberID", finalMemberId);
+            command.Parameters.AddWithValue("@Borrowed_Date", finalBorrowedDate);
+            command.Parameters.AddWithValue("@Returned_Date", finalReturnedDate);
 
             command.ExecuteNonQuery();
         }
@@ -1603,11 +1619,20 @@ namespace book_Managment
                 cmd.Parameters.AddWithValue("@Id", id);
             }) > 0;
         }
-
         private static bool ActiveBorrowExists(int bookId, int memberId)
         {
             return ExecuteCountProcedure("sp_CheckActiveBorrow", cmd =>
             {
+                cmd.Parameters.AddWithValue("@BookID", bookId);
+                cmd.Parameters.AddWithValue("@MemberID", memberId);
+            }) > 0;
+        }
+
+        private static bool ActiveBorrowExistsExcludeHistoryId(int historyId, int bookId, int memberId)
+        {
+            return ExecuteCountProcedure("sp_CheckActiveBorrowExcludeHistoryId", cmd =>
+            {
+                cmd.Parameters.AddWithValue("@Id", historyId);
                 cmd.Parameters.AddWithValue("@BookID", bookId);
                 cmd.Parameters.AddWithValue("@MemberID", memberId);
             }) > 0;
