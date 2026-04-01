@@ -140,236 +140,80 @@ namespace book_Managment
             void UpdateBook()
             {
                 Console.Clear();
+                SqlConnection? connection = null;
+
                 try
                 {
                     ViewBook();
                     CancelHint();
 
-                    SqlConnection? connection = null;
-                    int updateBookId;
-
                     connection = new SqlConnection(connectionString);
                     connection.Open();
 
+                    int updateBookId;
                     while (true)
                     {
                         updateBookId = NumberFormat("Select ID to update: ");
+
                         if (updateBookId <= 0)
                         {
-                            Console.WriteLine("Book's ID must be bigger than 0!" + '\n'); continue;
+                            Console.WriteLine("Book's ID must be bigger than 0!" + '\n');
+                            continue;
                         }
+
                         if (!ExistedId(connection, "books_manage", updateBookId))
                         {
-                            Console.WriteLine("Book ID not found! Please try again." + '\n'); continue;
+                            Console.WriteLine("Book ID not found! Please try again." + '\n');
+                            continue;
                         }
+
                         break;
                     }
 
-                    Console.WriteLine("1. Update Book's Title");
-                    Console.WriteLine("2. Update Author's Name");
-                    Console.WriteLine("3. Update Publish's Year");
-                    Console.WriteLine("4. Update Book's Category");
-                    Console.WriteLine("5. Update Book's Total");
+                    var currentBook = GetBookById(updateBookId);
 
-                    while (true)
+                    Console.WriteLine("\nPress Enter to skip a field and keep the old value.\n");
+
+                    string finalTitle = OptionalBookTitleFormat($"Update book's title [{currentBook.Title}] to:  ") ?? currentBook.Title;
+                    string finalAuthor = OptionalNameFormat($"Update book's author [{currentBook.Author}] to:  ") ?? currentBook.Author;
+                    int finalPublish = OptionalYearFormat($"Update published year [{currentBook.Publish}] to:  ") ?? currentBook.Publish;
+                    string finalCategory = OptionalNameFormat($"Update book's category [{currentBook.Category}] to:  ") ?? currentBook.Category;
+                    int finalTotal = OptionalNumberFormat($"Update book's total [{currentBook.Total}] to:  ") ?? currentBook.Total;
+
+                    if (DuplicateBookExistsExcludeId(updateBookId, finalTitle, finalAuthor))
                     {
-                        string choice = CancelInput("Select the number to update: ");
-
-                        switch (choice)
-                        {
-                            case "1": UpdateBookTitle(); return;
-                            case "2": UpdateAuthorName(); return;
-                            case "3": UpdatePublishYear(); return;
-                            case "4": UpdateBookCategory(); return;
-                            case "5": UpdateBookTotal(); return;
-                            default: Console.WriteLine("Invalid choice. Please try again." + '\n'); break;
-                        }
+                        Console.WriteLine("Another book with the same title and author already exists!" + '\n');
+                        Pause();
+                        return;
                     }
 
-                    void UpdateBookTitle()
-                    {
-                        try
-                        {
-                            connection = new SqlConnection(connectionString);
-                            connection.Open();
+                    ExecuteBookUpdateProcedure(
+                        updateBookId,
+                        title: finalTitle,
+                        author: finalAuthor,
+                        publish: finalPublish,
+                        category: finalCategory,
+                        total: finalTotal
+                    );
 
-                            if (!ExistedId(connection, "books_manage", updateBookId))
-                            {
-                                Console.WriteLine("Book ID not found!" + '\n');
-                                Pause();
-                                return;
-                            }
-
-                            Console.WriteLine();
-                            var currentBook = GetBookById(updateBookId);
-                            string newBookTitle = BookTitleFormat($"Update Title: {currentBook.Title} to:  ");
-
-                            if (DuplicateBookExistsExcludeId(updateBookId, newBookTitle, currentBook.Author))
-                            {
-                                Console.WriteLine("Another book with the same title and author already exists!" + '\n');
-                                Pause();
-                                return;
-                            }
-
-                            ExecuteBookUpdateProcedure(updateBookId, title: newBookTitle);
-
-                            ViewBook();
-                            Console.WriteLine("Book title updated!" + '\n');
-                            Pause();
-                        }
-
-                        finally
-                        {
-                            if (connection != null && connection.State == ConnectionState.Open)
-                                connection.Close();
-                        }
-                    }
-
-                    void UpdateAuthorName()
-                    {
-                        try
-                        {
-                            connection = new SqlConnection(connectionString);
-                            connection.Open();
-
-                            if (!ExistedId(connection, "books_manage", updateBookId))
-                            {
-                                Console.WriteLine("Book ID not found!" + '\n');
-                                Pause();
-                                return;
-                            }
-
-                            Console.WriteLine();
-                            var currentBook = GetBookById(updateBookId);
-                            string newAuthorName = NameFormat($"Update Author: {currentBook.Author} to: ");
-
-                            if (DuplicateBookExistsExcludeId(updateBookId, currentBook.Title, newAuthorName))
-                            {
-                                Console.WriteLine("Another book with the same title and author already exists!" + '\n');
-                                Pause();
-                                return;
-                            }
-
-                            ExecuteBookUpdateProcedure(updateBookId, author: newAuthorName);
-
-                            ViewBook();
-                            Console.WriteLine("Author name updated!" + '\n');
-                            Pause();
-                        }
-                        finally
-                        {
-                            if (connection != null && connection.State == ConnectionState.Open)
-                                connection.Close();
-                        }
-                    }
-
-                    void UpdatePublishYear()
-                    {
-                        try
-                        {
-                            connection = new SqlConnection(connectionString);
-                            connection.Open();
-
-                            if (!ExistedId(connection, "books_manage", updateBookId))
-                            {
-                                Console.WriteLine("Book ID not found!" + "\n");
-                                Pause();
-                                return;
-                            }
-
-                            Console.WriteLine();
-                            var currentBook = GetBookById(updateBookId);
-                            int publishYear = YearFormat($"Update Publish Year: {currentBook.Publish} to: ");
-
-                            ExecuteBookUpdateProcedure(updateBookId, publish: publishYear);
-
-                            ViewBook();
-                            Console.WriteLine("Publish year updated!" + '\n');
-                            Pause();
-                        }
-                        finally
-                        {
-                            if (connection != null && connection.State == ConnectionState.Open)
-                                connection.Close();
-                        }
-                    }
-
-                    void UpdateBookCategory()
-                    {
-                        try
-                        {
-                            connection = new SqlConnection(connectionString);
-                            connection.Open();
-
-                            if (!ExistedId(connection, "books_manage", updateBookId))
-                            {
-                                Console.WriteLine("Book ID not found!" + '\n');
-                                Pause();
-                                return;
-                            }
-
-                            Console.WriteLine();
-                            var currentBook = GetBookById(updateBookId);
-                            string bookCategory = NameFormat($"Update Category: {currentBook.Category} to: ");
-
-                            ExecuteBookUpdateProcedure(updateBookId, category: bookCategory);
-
-                            ViewBook();
-                            Console.WriteLine("Book category updated!" + '\n');
-                            Pause();
-                        }
-                        finally
-                        {
-                            if (connection != null && connection.State == ConnectionState.Open)
-                                connection.Close();
-                        }
-                    }
-
-                    void UpdateBookTotal()
-                    {
-                        try
-                        {
-                            connection = new SqlConnection(connectionString);
-                            connection.Open();
-
-                            if (!ExistedId(connection, "books_manage", updateBookId))
-                            {
-                                Console.WriteLine("Book ID not found!" + '\n');
-                                Pause();
-                                return;
-                            }
-
-                            int totalBooks = NumberFormat("Enter new Book's Total: ");
-
-                            if (totalBooks < 0)
-                            {
-                                Console.WriteLine("Book's total cannot be negative!" + '\n');
-                                Pause();
-                                return;
-                            }
-
-                            ExecuteBookUpdateProcedure(updateBookId, total: totalBooks);
-
-                            ViewBook();
-                            Console.WriteLine("Book total updated!" + '\n');
-                            Pause();
-                        }
-                        finally
-                        {
-                            if (connection != null && connection.State == ConnectionState.Open)
-                                connection.Close();
-                        }
-                    }
+                    ViewBook();
+                    Console.WriteLine("Book updated successfully!" + '\n');
+                    Pause();
                 }
                 catch (OperationCanceledException)
                 {
                     Console.WriteLine("Operation canceled. Returning to book menu.");
-                    Pause(); return;
+                    Pause();
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error: {ex.Message}");
-                    Pause(); return;
+                    Pause();
+                }
+                finally
+                {
+                    if (connection != null && connection.State == ConnectionState.Open)
+                        connection.Close();
                 }
             }
 
@@ -470,7 +314,7 @@ namespace book_Managment
                         DateTime dob = Convert.ToDateTime(reader["Dob"]);
                         DateTime since = Convert.ToDateTime(reader["Member_Since"]);
 
-                        Console.WriteLine($"{reader["Id"],-5} {reader["Name"],-20} {dob.ToShortDateString(),-15} {since.ToShortDateString(),-15}");
+                        Console.WriteLine($"{reader["Id"],-5} {reader["Name"],-20} {dob.ToString("dd-MM-yyyy"),-15} {since.ToString("dd-MM-yyyy"),-15}");
                     }
 
                     Console.WriteLine(new string('-', 60));
@@ -495,7 +339,7 @@ namespace book_Managment
 
                     while (true)
                     {
-                        memberDOB = DateFormat("Enter Member's DOB (yyyy-MM-dd): ");
+                        memberDOB = DateFormat("Enter Member's DOB (dd-MM-yyyy): ");
 
                         age = DateTime.Today.Year - memberDOB.Year;
                         if (memberDOB.Date > DateTime.Today.AddYears(-age))
@@ -512,7 +356,7 @@ namespace book_Managment
                     DateTime memberShip;
                     while (true)
                     {
-                        memberShip = DateFormat("Enter Member's Membership Year (yyyy-MM-dd): ");
+                        memberShip = DateFormat("Enter Member's Membership Year (dd-MM-yyyy): ");
 
                         if (memberShip.Date > DateTime.Today)
                         {
@@ -556,12 +400,12 @@ namespace book_Managment
             void UpdateMember()
             {
                 Console.Clear();
+                SqlConnection? connection = null;
+
                 try
                 {
                     ViewMember();
                     CancelHint();
-
-                    SqlConnection? connection = null;
 
                     connection = new SqlConnection(connectionString);
                     connection.Open();
@@ -570,180 +414,103 @@ namespace book_Managment
                     while (true)
                     {
                         updateMemberId = NumberFormat("Select ID to Update: ");
+
                         if (updateMemberId <= 0)
                         {
                             Console.WriteLine("Member's ID must be bigger than 0!" + '\n');
                             continue;
                         }
+
                         if (!ExistedId(connection, "members_manage", updateMemberId))
                         {
                             Console.WriteLine("Member ID not found! Please try again." + '\n');
                             continue;
                         }
+
                         break;
                     }
 
-                    Console.WriteLine("1. Update Member's Name");
-                    Console.WriteLine("2. Update Member's DOB");
-                    Console.WriteLine("3. Update Member's Membership Date");
+                    var currentMember = GetMemberById(updateMemberId);
 
+                    Console.WriteLine("\nPress Enter to skip a field and keep the old value.\n");
+
+                    string finalName = OptionalNameFormat($"Update member's name [{currentMember.Name}] to: ") ?? currentMember.Name;
+
+                    DateTime? newDobInput = null;
                     while (true)
                     {
-                        string choice = CancelInput("Select the number to update: ");
+                        DateTime? tempDob = OptionalDateFormatSkip($"Update member's dob [{currentMember.Dob:dd-MM-yyyy}] to: ");
 
-                        switch (choice)
+                        if (tempDob == null)
+                            break;
+
+                        int age = DateTime.Today.Year - tempDob.Value.Year;
+                        if (tempDob.Value.Date > DateTime.Today.AddYears(-age))
+                            age--;
+
+                        if (age < 15)
                         {
-                            case "1": UpdateMemberName(); return;
-                            case "2": UpdateMemberDOB(); return;
-                            case "3": UpdateMemberShip(); return;
-                            default: Console.WriteLine("Invalid choice. Please try again." + '\n'); break;
+                            Console.WriteLine("Member's age should be at least 15 years old!" + '\n');
+                            continue;
                         }
+
+                        newDobInput = tempDob;
+                        break;
                     }
 
-                    void UpdateMemberName()
+                    DateTime? newMemberSinceInput = null;
+                    while (true)
                     {
-                        try
+                        DateTime? tempMemberSince = OptionalDateFormatSkip($"Update member's membership [{currentMember.MemberSince:dd-MM-yyyy}] to: ");
+
+                        if (tempMemberSince == null)
+                            break;
+
+                        if (tempMemberSince.Value.Date > DateTime.Today)
                         {
-                            connection = new SqlConnection(connectionString);
-                            connection.Open();
-
-                            if (!ExistedId(connection, "members_manage", updateMemberId))
-                            {
-                                Console.WriteLine("Member ID not found!");
-                                Pause();
-                                return;
-                            }
-
-                            Console.WriteLine();
-                            var currentMember = GetMemberById(updateMemberId);
-                            string updateMemberName = NameFormat($"Update Member Name: {currentMember.Name} to: ");
-
-                            ExecuteMemberUpdateProcedure(updateMemberId, name: updateMemberName);
-
-                            ViewMember();
-                            Console.WriteLine("Member name updated!" + '\n');
-                            Pause();
+                            Console.WriteLine("Membership year cannot be in the future!" + '\n');
+                            continue;
                         }
-                        finally
-                        {
-                            if (connection != null && connection.State == ConnectionState.Open)
-                                connection.Close();
-                        }
+
+                        newMemberSinceInput = tempMemberSince;
+                        break;
                     }
 
-                    void UpdateMemberDOB()
+                    DateTime finalDob = newDobInput ?? currentMember.Dob;
+                    DateTime finalMemberSince = newMemberSinceInput ?? currentMember.MemberSince;
+
+                    if (finalMemberSince.Date <= finalDob.Date)
                     {
-                        try
-                        {
-                            connection = new SqlConnection(connectionString);
-                            connection.Open();
-
-                            if (!ExistedId(connection, "members_manage", updateMemberId))
-                            {
-                                Console.WriteLine("Member ID not found!" + '\n');
-                                Pause();
-                                return;
-                            }
-
-                            var currentMember = GetMemberById(updateMemberId);
-                            DateTime updateMemberDOB;
-                            int age;
-
-                            while (true)
-                            {
-                                Console.WriteLine();
-                                updateMemberDOB = DateFormat($"Update DOB: {currentMember.Dob:yyyy-MM-dd} to: ");
-
-                                age = DateTime.Today.Year - updateMemberDOB.Year;
-                                if (updateMemberDOB.Date > DateTime.Today.AddYears(-age))
-                                    age--;
-
-                                if (age < 15)
-                                {
-                                    Console.WriteLine("Member's age should be at least 15 years old!" + '\n');
-                                    continue;
-                                }
-
-                                if (updateMemberDOB.Date >= currentMember.MemberSince.Date)
-                                {
-                                    Console.WriteLine("DOB must be before Membership date!" + '\n');
-                                    continue;
-                                }
-
-                                break;
-                            }
-
-                            ExecuteMemberUpdateProcedure(updateMemberId, dob: updateMemberDOB);
-
-                            ViewMember();
-                            Console.WriteLine("Member DOB updated!" + '\n');
-                            Pause();
-                        }
-                        finally
-                        {
-                            if (connection != null && connection.State == ConnectionState.Open)
-                                connection.Close();
-                        }
+                        Console.WriteLine("Membership date must be after DOB!" + '\n');
+                        Pause();
+                        return;
                     }
 
-                    void UpdateMemberShip()
-                    {
-                        try
-                        {
-                            connection = new SqlConnection(connectionString);
-                            connection.Open();
+                    ExecuteMemberUpdateProcedure(
+                        updateMemberId,
+                        name: finalName,
+                        dob: finalDob,
+                        memberSince: finalMemberSince
+                    );
 
-                            if (!ExistedId(connection, "members_manage", updateMemberId))
-                            {
-                                Console.WriteLine("Member ID not found!" + '\n');
-                                Pause();
-                                return;
-                            }
-
-                            var currentMember = GetMemberById(updateMemberId);
-                            DateTime updateMemberShip;
-
-                            while (true)
-                            {
-                                updateMemberShip = DateFormat($"Update Membership Date: {currentMember.MemberSince:yyyy-MM-dd} to: ");
-
-                                if (updateMemberShip.Date > DateTime.Today)
-                                {
-                                    Console.WriteLine("Membership year cannot be in the future!" + '\n');
-                                    continue;
-                                }
-
-                                if (updateMemberShip.Date <= currentMember.Dob.Date)
-                                {
-                                    Console.WriteLine("Membership date must be after DOB!" + '\n');
-                                    continue;
-                                }
-
-                                break;
-                            }
-
-                            ExecuteMemberUpdateProcedure(updateMemberId, memberSince: updateMemberShip);
-
-                            ViewMember();
-                            Console.WriteLine("Membership date updated!" + '\n');
-                            Pause();
-                        }
-                        finally
-                        {
-                            if (connection != null && connection.State == ConnectionState.Open)
-                                connection.Close();
-                        }
-                    }
+                    ViewMember();
+                    Console.WriteLine("Member updated successfully!" + '\n');
+                    Pause();
                 }
                 catch (OperationCanceledException)
                 {
                     Console.WriteLine("Operation canceled. Returning to member menu.");
-                    Pause(); return;
+                    Pause();
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error: {ex.Message}");
-                    Pause(); return;
+                    Pause();
+                }
+                finally
+                {
+                    if (connection != null && connection.State == ConnectionState.Open)
+                        connection.Close();
                 }
             }
 
@@ -849,9 +616,9 @@ namespace book_Managment
                         DateTime borrowed = Convert.ToDateTime(reader["Borrowed_Date"]);
                         string returned = reader["Returned_Date"] == DBNull.Value
                             ? "Not Returned"
-                            : Convert.ToDateTime(reader["Returned_Date"]).ToShortDateString();
+                            : Convert.ToDateTime(reader["Returned_Date"]).ToString("dd-MM-yyyy");
 
-                        Console.WriteLine($"{reader["Id"],-5} {reader["BookID"],-10} {reader["MemberID"],-12} {borrowed.ToShortDateString(),-15} {returned,-15}");
+                        Console.WriteLine($"{reader["Id"],-5} {reader["BookID"],-10} {reader["MemberID"],-12} {borrowed.ToString("dd-MM-yyyy"),-15} {returned,-15}");
                     }
 
                     Console.WriteLine(new string('-', 62));
@@ -903,7 +670,7 @@ namespace book_Managment
                     DateTime borrowedDate;
                     while (true)
                     {
-                        borrowedDate = DateFormat("Enter Borrowed Date (yyyy-MM-dd): ");
+                        borrowedDate = DateFormat("Enter Borrowed Date (dd-MM-yyyy): ");
 
                         if (borrowedDate.Date > DateTime.Today)
                         {
@@ -917,7 +684,7 @@ namespace book_Managment
                     object returnedValue;
                     while (true)
                     {
-                        returnedValue = OptionalDateFormat("Enter Returned Date (yyyy-MM-dd), or press Enter to skip: ");
+                        returnedValue = OptionalDateFormat("Enter Returned Date (dd-MM-yyyy), or press Enter to skip: ");
 
                         if (returnedValue == DBNull.Value)
                             break;
@@ -985,270 +752,186 @@ namespace book_Managment
             void UpdateHistory()
             {
                 Console.Clear();
+                SqlConnection? connection = null;
+
                 try
                 {
                     ViewHistory();
                     CancelHint();
 
-                    SqlConnection? connection = null;
-
-                    int updateHistoryId;
-
                     connection = new SqlConnection(connectionString);
                     connection.Open();
 
+                    int updateHistoryId;
                     while (true)
                     {
-                        updateHistoryId = NumberFormat("Select ID to Update: " + '\n');
+                        updateHistoryId = NumberFormat("Select ID to Update: ");
+
                         if (updateHistoryId <= 0)
                         {
                             Console.WriteLine("History ID must be bigger than 0!" + '\n');
                             continue;
                         }
+
                         if (!ExistedId(connection, "borrow_history", updateHistoryId))
                         {
                             Console.WriteLine("History ID not found! Please try again." + '\n');
                             continue;
                         }
+
                         break;
                     }
 
-                    Console.WriteLine("1. Update Book's ID");
-                    Console.WriteLine("2. Update Member's ID");
-                    Console.WriteLine("3. Update Borrowed Date");
-                    Console.WriteLine("4. Update Returned Date");
+                    var currentHistory = GetHistoryById(updateHistoryId);
+
+                    int finalBookId = currentHistory.BookId;
+                    int finalMemberId = currentHistory.MemberId;
+                    DateTime finalBorrowedDate = currentHistory.BorrowedDate;
+                    object finalReturnedDate = currentHistory.ReturnedDate;
+
+                    Console.WriteLine("\nPress Enter to skip a field and keep the old value.");
 
                     while (true)
                     {
-                        string choice = CancelInput("Select the number to update: ");
+                        int? tempBookId = OptionalNumberFormat($"Update book's id [{finalBookId}] to: ");
 
-                        switch (choice)
+                        if (tempBookId == null)
+                            break;
+
+                        if (!BookExists(tempBookId.Value))
                         {
-                            case "1": UpdateHistoryBookId(); return;
-                            case "2": UpdateHistoryMemberId(); return;
-                            case "3": UpdateBorrowedDate(); return;
-                            case "4": UpdateReturnedDate(); return;
-                            default: Console.WriteLine("Invalid choice. Please try again." + '\n'); break;
+                            Console.WriteLine("Book ID not found. Please try again." + '\n');
+                            continue;
                         }
+
+                        if (finalReturnedDate == DBNull.Value &&
+                            ActiveBorrowExistsExcludeHistoryId(updateHistoryId, tempBookId.Value, finalMemberId))
+                        {
+                            Console.WriteLine("This member is already borrowing this book and hasn't returned it yet!" + '\n');
+                            continue;
+                        }
+
+                        finalBookId = tempBookId.Value;
+                        break;
                     }
 
-                    void UpdateHistoryBookId()
+                    while (true)
                     {
-                        try
+                        int? tempMemberId = OptionalNumberFormat($"Update member's id [{finalMemberId}] to: ");
+
+                        if (tempMemberId == null)
+                            break;
+
+                        if (!MemberExists(tempMemberId.Value))
                         {
-                            connection = new SqlConnection(connectionString);
-                            connection.Open();
-
-                            if (!ExistedId(connection, "borrow_history", updateHistoryId))
-                            {
-                                Console.WriteLine("History ID not found. Please try again." + '\n');
-                                Pause();
-                                return;
-                            }
-
-                            Console.WriteLine();
-                            var currentHistory = GetHistoryById(updateHistoryId);
-
-                            int newBookId;
-                            while (true)
-                            {
-                                newBookId = NumberFormat($"Update Book ID: {currentHistory.BookId} to: ");
-
-                                if (!ExistedId(connection, "books_manage", newBookId))
-                                {
-                                    Console.WriteLine("Book ID not found. Please try again." + '\n');
-                                    continue;
-                                }
-
-                                if (currentHistory.ReturnedDate == DBNull.Value &&
-                                    ActiveBorrowExistsExcludeHistoryId(updateHistoryId, newBookId, currentHistory.MemberId))
-                                {
-                                    Console.WriteLine("This member is already borrowing this book and hasn't returned it yet!" + '\n');
-                                    continue;
-                                }
-
-                                break;
-                            }
-
-                            ExecuteHistoryUpdateProcedure(updateHistoryId, bookId: newBookId);
-
-                            ViewHistory();
-                            Console.WriteLine("Book ID updated!" + '\n');
-                            Pause();
+                            Console.WriteLine("Member ID not found. Please try again." + '\n');
+                            continue;
                         }
-                        finally
+
+                        if (finalReturnedDate == DBNull.Value &&
+                            ActiveBorrowExistsExcludeHistoryId(updateHistoryId, finalBookId, tempMemberId.Value))
                         {
-                            if (connection != null && connection.State == ConnectionState.Open)
-                                connection.Close();
+                            Console.WriteLine("This member is already borrowing this book and hasn't returned it yet!" + '\n');
+                            continue;
                         }
+
+                        finalMemberId = tempMemberId.Value;
+                        break;
                     }
 
-                    void UpdateHistoryMemberId()
+                    while (true)
                     {
-                        try
+                        DateTime? tempBorrowedDate = OptionalDateFormatSkip($"Update borrowed date [{finalBorrowedDate:dd-MM-yyyy}] to: ");
+
+                        if (tempBorrowedDate == null)
+                            break;
+
+                        if (tempBorrowedDate.Value.Date > DateTime.Today)
                         {
-                            connection = new SqlConnection(connectionString);
-                            connection.Open();
-
-                            if (!ExistedId(connection, "borrow_history", updateHistoryId))
-                            {
-                                Console.WriteLine("History ID not found. Please try again." + '\n');
-                                Pause();
-                                return;
-                            }
-
-                            Console.WriteLine();
-                            var currentHistory = GetHistoryById(updateHistoryId);
-
-                            int newMemberId;
-                            while (true)
-                            {
-                                newMemberId = NumberFormat($"Update Member ID: {currentHistory.MemberId} to: ");
-
-                                if (!ExistedId(connection, "members_manage", newMemberId))
-                                {
-                                    Console.WriteLine("Member ID not found. Please try again." + '\n');
-                                    continue;
-                                }
-
-                                if (currentHistory.ReturnedDate == DBNull.Value &&
-                                    ActiveBorrowExistsExcludeHistoryId(updateHistoryId, currentHistory.BookId, newMemberId))
-                                {
-                                    Console.WriteLine("This member is already borrowing this book and hasn't returned it yet!" + '\n');
-                                    continue;
-                                }
-
-                                break;
-                            }
-
-                            ExecuteHistoryUpdateProcedure(updateHistoryId, memberId: newMemberId);
-
-                            ViewHistory();
-                            Console.WriteLine("Member ID updated!" + '\n');
-                            Pause();
+                            Console.WriteLine("Borrowed date cannot be in the future. Please try again." + '\n');
+                            continue;
                         }
-                        finally
+
+                        if (finalReturnedDate != DBNull.Value)
                         {
-                            if (connection != null && connection.State == ConnectionState.Open)
-                                connection.Close();
+                            DateTime returnedDate = (DateTime)finalReturnedDate;
+
+                            if (tempBorrowedDate.Value.Date >= returnedDate.Date)
+                            {
+                                Console.WriteLine("Borrowed date must be before returned date. Please try again." + '\n');
+                                continue;
+                            }
                         }
+
+                        finalBorrowedDate = tempBorrowedDate.Value;
+                        break;
                     }
 
-                    void UpdateBorrowedDate()
+                    Console.WriteLine("Type clear on Returned Date to mark it as Not Returned.\n");
+
+                    while (true)
                     {
-                        try
+                        string oldReturnedText = finalReturnedDate == DBNull.Value
+                            ? "Not Returned"
+                            : ((DateTime)finalReturnedDate).ToString("dd-MM-yyyy");
+
+                        object? tempReturnedDate = OptionalReturnedDateUpdateFormat(
+                            $"Update returned date [{oldReturnedText}] (Enter=skip, clear=Not Returned) to: "
+                        );
+
+                        if (tempReturnedDate == null)
+                            break;
+
+                        if (tempReturnedDate != DBNull.Value)
                         {
-                            connection = new SqlConnection(connectionString);
-                            connection.Open();
+                            DateTime returnedDate = (DateTime)tempReturnedDate;
 
-                            if (!ExistedId(connection, "borrow_history", updateHistoryId))
+                            if (returnedDate.Date <= finalBorrowedDate.Date)
                             {
-                                Console.WriteLine("History ID not found. Please try again." + '\n');
-                                Pause();
-                                return;
+                                Console.WriteLine("Returned date must be after borrowed date. Please try again." + '\n');
+                                continue;
                             }
-
-                            var currentHistory = GetHistoryById(updateHistoryId);
-                            DateTime newBorrowedDate;
-
-                            while (true)
-                            {
-                                newBorrowedDate = DateFormat($"Update Borrowed Date: {currentHistory.BorrowedDate:yyyy-MM-dd} to: ");
-
-                                if (newBorrowedDate.Date > DateTime.Today)
-                                {
-                                    Console.WriteLine("Borrowed date cannot be in the future. Please try again." + '\n');
-                                    continue;
-                                }
-
-                                if (currentHistory.ReturnedDate != DBNull.Value)
-                                {
-                                    DateTime currentReturnedDate = Convert.ToDateTime(currentHistory.ReturnedDate);
-                                    if (newBorrowedDate.Date >= currentReturnedDate.Date)
-                                    {
-                                        Console.WriteLine("Borrowed date must be before returned date. Please try again." + '\n');
-                                        continue;
-                                    }
-                                }
-
-                                break;
-                            }
-
-                            ExecuteHistoryUpdateProcedure(updateHistoryId, borrowedDate: newBorrowedDate);
-
-                            ViewHistory();
-                            Console.WriteLine("Borrowed date updated!" + '\n');
-                            Pause();
                         }
-                        finally
+                        else
                         {
-                            if (connection != null && connection.State == ConnectionState.Open)
-                                connection.Close();
+                            if (ActiveBorrowExistsExcludeHistoryId(updateHistoryId, finalBookId, finalMemberId))
+                            {
+                                Console.WriteLine("This member is already borrowing this book and hasn't returned it yet!" + '\n');
+                                continue;
+                            }
                         }
+
+                        finalReturnedDate = tempReturnedDate;
+                        break;
                     }
 
-                    void UpdateReturnedDate()
-                    {
-                        try
-                        {
-                            connection = new SqlConnection(connectionString);
-                            connection.Open();
+                    ExecuteHistoryUpdateProcedure(
+                        updateHistoryId,
+                        bookId: finalBookId,
+                        memberId: finalMemberId,
+                        borrowedDate: finalBorrowedDate,
+                        returnedDate: finalReturnedDate
+                    );
 
-                            if (!ExistedId(connection, "borrow_history", updateHistoryId))
-                            {
-                                Console.WriteLine("History ID not found. Please try again." + '\n');
-                                Pause();
-                                return;
-                            }
-
-                            var currentHistory = GetHistoryById(updateHistoryId);
-                            object returnedValue;
-
-                            while (true)
-                            {
-                                string oldReturnedDate = currentHistory.ReturnedDate == DBNull.Value
-                ? "Not Returned"
-                : Convert.ToDateTime(currentHistory.ReturnedDate).ToString("yyyy-MM-dd");
-
-                                returnedValue = OptionalDateFormat($"Press Enter to mark as Not Returned, or Update Returned Date: {oldReturnedDate} to: ");
-
-                                if (returnedValue == DBNull.Value)
-                                    break;
-
-                                DateTime returnedDate = (DateTime)returnedValue;
-
-                                if (returnedDate.Date <= currentHistory.BorrowedDate.Date)
-                                {
-                                    Console.WriteLine("Returned date must be after borrowed date. Please try again." + '\n');
-                                    continue;
-                                }
-
-                                break;
-                            }
-
-                            ExecuteHistoryUpdateProcedure(updateHistoryId, returnedDate: returnedValue);
-
-                            ViewHistory();
-                            Console.WriteLine("Returned date updated!" + '\n');
-                            Pause();
-                        }
-                        finally
-                        {
-                            if (connection != null && connection.State == ConnectionState.Open)
-                                connection.Close();
-                        }
-                    }
+                    ViewHistory();
+                    Console.WriteLine("History updated successfully!" + '\n');
+                    Pause();
                 }
                 catch (OperationCanceledException)
                 {
                     Console.WriteLine("Operation canceled. Returning to history menu.");
                     Pause();
-                    Console.Clear(); return;
+                    Console.Clear();
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error: {ex.Message}");
-                    Pause(); return;
+                    Pause();
+                }
+                finally
+                {
+                    if (connection != null && connection.State == ConnectionState.Open)
+                        connection.Close();
                 }
             }
 
@@ -1438,10 +1121,12 @@ namespace book_Managment
             while (true)
             {
                 string input = CancelInput(date);
-                if (DateTime.TryParseExact(input, "yyyy-MM-dd",
+
+                if (DateTime.TryParseExact(input, "dd-MM-yyyy",
                     CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result))
                     return result;
-                Console.WriteLine("Invalid! Use format yyyy-MM-dd." + '\n');
+
+                Console.WriteLine("Invalid! Use format dd-MM-yyyy." + '\n');
             }
         }
 
@@ -1450,14 +1135,15 @@ namespace book_Managment
             while (true)
             {
                 string input = CancelInput(optionalDate);
+
                 if (string.IsNullOrWhiteSpace(input))
                     return DBNull.Value;
 
-                if (DateTime.TryParseExact(input, "yyyy-MM-dd",
+                if (DateTime.TryParseExact(input, "dd-MM-yyyy",
                     CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result))
                     return result;
 
-                Console.WriteLine("Invalid! Use format yyyy-MM-dd or press Enter to skip." + '\n');
+                Console.WriteLine("Invalid! Use format dd-MM-yyyy or press Enter to skip." + '\n');
             }
         }
 
@@ -1803,6 +1489,136 @@ namespace book_Managment
                      ("@MemberID", memberId)
                 );
             }) > 0;
+        }
+        private static string? OptionalBookTitleFormat(string title)
+        {
+            while (true)
+            {
+                string input = CancelInput(title);
+
+                if (string.IsNullOrWhiteSpace(input))
+                    return null;
+
+                return input;
+            }
+        }
+
+        private static string? OptionalNameFormat(string name)
+        {
+            while (true)
+            {
+                string input = CancelInput(name);
+
+                if (string.IsNullOrWhiteSpace(input))
+                    return null;
+
+                if (!input.All(c => char.IsLetter(c) || char.IsWhiteSpace(c)))
+                {
+                    Console.WriteLine("Input must contain only letters and spaces. Please try again." + '\n');
+                    continue;
+                }
+
+                return input;
+            }
+        }
+
+        private static int? OptionalNumberFormat(string number)
+        {
+            while (true)
+            {
+                string input = CancelInput(number);
+
+                if (string.IsNullOrWhiteSpace(input))
+                    return null;
+
+                if (!int.TryParse(input, out int result))
+                {
+                    Console.WriteLine("Invalid! Please enter a number." + '\n');
+                    continue;
+                }
+
+                if (result < 0)
+                {
+                    Console.WriteLine("Number cannot be negative. Please try again." + '\n');
+                    continue;
+                }
+
+                return result;
+            }
+        }
+
+        private static int? OptionalYearFormat(string number)
+        {
+            while (true)
+            {
+                string input = CancelInput(number);
+
+                if (string.IsNullOrWhiteSpace(input))
+                    return null;
+
+                if (!int.TryParse(input, out int result))
+                {
+                    Console.WriteLine("Invalid! Please enter a number." + '\n');
+                    continue;
+                }
+
+                if (result < 0)
+                {
+                    Console.WriteLine("Number cannot be negative. Please try again." + '\n');
+                    continue;
+                }
+
+                if (result > DateTime.Today.Year)
+                {
+                    Console.WriteLine("Year cannot be in the future. Please try again." + '\n');
+                    continue;
+                }
+
+                if (result < 1000)
+                {
+                    Console.WriteLine("Year must be a 4-digit number. Please try again." + '\n');
+                    continue;
+                }
+
+                return result;
+            }
+        }
+
+        private static DateTime? OptionalDateFormatSkip(string date)
+        {
+            while (true)
+            {
+                string input = CancelInput(date);
+
+                if (string.IsNullOrWhiteSpace(input))
+                    return null;
+
+                if (DateTime.TryParseExact(input, "dd-MM-yyyy",
+                    CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result))
+                    return result;
+
+                Console.WriteLine("Invalid! Use format dd-MM-yyyy or press Enter to skip." + '\n');
+            }
+        }
+
+        private static object? OptionalReturnedDateUpdateFormat(string optionalDate)
+        {
+            while (true)
+            {
+                string input = CancelInput(optionalDate);
+
+                if (string.IsNullOrWhiteSpace(input))
+                    return null;
+
+                if (input.Equals("clear", StringComparison.OrdinalIgnoreCase))
+                    return DBNull.Value;
+
+                if (DateTime.TryParseExact(input, "dd-MM-yyyy",
+                    CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result))
+                    return result;
+
+                Console.WriteLine("Invalid! Use dd-MM-yyyy, press Enter to skip, or type clear to mark as Not Returned." + '\n');
+            }
         }
     }
 }

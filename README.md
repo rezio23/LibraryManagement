@@ -30,7 +30,7 @@ The admin dashboard supports full management:
 
 - view books, members, and borrow history
 - add new records
-- update existing records
+- update existing records in a single pass, with Enter to keep the current value
 - delete existing records
 
 ### User dashboard
@@ -52,6 +52,8 @@ The user dashboard supports a more limited flow:
 - Checks to confirm referenced book IDs and member IDs exist
 - Prevention of duplicate active borrow records for the same member and book
 - `Escape`-based cancellation flow for data entry screens
+- Admin update flows can leave fields unchanged by pressing `Enter`
+- History updates support typing `clear` to reset `Returned_Date` back to "Not Returned"
 
 ## Validation rules
 
@@ -59,8 +61,9 @@ The user dashboard supports a more limited flow:
 - Names and categories accept letters and spaces only
 - Numeric values must be non-negative integers
 - Years must be 4 digits and cannot be in the future
-- Dates must use `yyyy-MM-dd`
-- Optional returned dates may be left blank
+- Dates in the current admin flows use `dd-MM-yyyy`
+- Optional returned dates may be left blank when creating history
+- During history updates, pressing `Enter` skips the field and typing `clear` empties `Returned_Date`
 
 ## Tech stack
 
